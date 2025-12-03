@@ -7,7 +7,9 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins ENV.fetch("FRONTEND_URL", "http://localhost:5173")
+    # Allow localhost for development and Vercel domains for production
+    origins ENV.fetch("FRONTEND_URL", "http://localhost:5173"),
+            /https:\/\/.*\.vercel\.app$/
 
     resource "*",
       headers: :any,
