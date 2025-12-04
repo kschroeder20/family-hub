@@ -27,7 +27,12 @@ class GoogleCalendarService
       file: Rails.root.join('tmp', 'tokens.yaml')
     )
 
-    authorizer = Google::Auth::UserAuthorizer.new(client_id, SCOPE, token_store)
+    authorizer = Google::Auth::UserAuthorizer.new(
+      client_id,
+      SCOPE,
+      token_store,
+      ENV['GOOGLE_REDIRECT_URI']
+    )
     authorizer.get_authorization_url(redirect_uri: ENV['GOOGLE_REDIRECT_URI'])
   end
 
@@ -109,7 +114,12 @@ class GoogleCalendarService
       file: Rails.root.join('tmp', 'tokens.yaml')
     )
 
-    authorizer = Google::Auth::UserAuthorizer.new(client_id, SCOPE, token_store)
+    authorizer = Google::Auth::UserAuthorizer.new(
+      client_id,
+      SCOPE,
+      token_store,
+      ENV['GOOGLE_REDIRECT_URI']
+    )
 
     user_id = 'default'
     credentials = authorizer.get_credentials(user_id)

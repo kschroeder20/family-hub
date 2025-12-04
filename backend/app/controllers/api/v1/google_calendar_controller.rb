@@ -104,7 +104,8 @@ module Api
           authorizer = Google::Auth::UserAuthorizer.new(
             client_id,
             Google::Apis::CalendarV3::AUTH_CALENDAR,
-            token_store
+            token_store,
+            ENV['GOOGLE_REDIRECT_URI']
           )
 
           # Exchange the authorization code for credentials
@@ -133,6 +134,41 @@ module Api
       rescue => e
         Rails.logger.error "Failed to initialize Google Calendar service: #{e.message}"
         @service = nil
+      end
+    end
+  end
+end
+
+      def auth_url
+        begin
+          client_id = Google::Auth::ClientId.new(
+            ENV['GOOGLE_CLIENT_ID'],
+            ENV['GOOGLE_CLIENT_SECRET']
+          )
+
+          token_store = Google::Auth::Stores::FileTokenStore.new(
+            file: Rails.root.join('tmp', 'tokens.yaml')
+          )
+
+          authorizer = Google::Auth::UserAuthorizer.new(
+            client_id,
+            Google::Apis::CalendarV3::AUTH_CALENDAR,
+            token_store,
+            ENV['GOOGLE_REDIRECT_URI']
+          )
+
+          url = authorizer.get_authorization_url(redirect_uri: ENV['GOOGLE_REDIRECT_URI'])
+          
+          render json: {
+            success: true,
+            authorization_url: url
+          }
+        rescue => e
+          render json: {
+            success: false,
+            error: e.message
+          }, status: :internal_server_error
+        end
       end
     end
   end
