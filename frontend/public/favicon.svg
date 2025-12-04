@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Background -->
+  <rect width="32" height="32" rx="6" fill="#635bff"/>
+
+  <!-- Calendar -->
+  <rect x="6" y="8" width="20" height="18" rx="2" fill="white"/>
+
+  <!-- Top bar -->
+  <rect x="6" y="8" width="20" height="5" rx="2" fill="#e3e8ee"/>
+
+  <!-- Binding rings -->
+  <circle cx="11" cy="8" r="1.5" fill="#635bff"/>
+  <circle cx="21" cy="8" r="1.5" fill="#635bff"/>
+
+  <!-- Date grid -->
+  <rect x="9" y="16" width="2.5" height="2.5" rx="0.5" fill="#635bff"/>
+  <rect x="13" y="16" width="2.5" height="2.5" rx="0.5" fill="#a5a0ff"/>
+  <rect x="17" y="16" width="2.5" height="2.5" rx="0.5" fill="#a5a0ff"/>
+  <rect x="21" y="16" width="2.5" height="2.5" rx="0.5" fill="#a5a0ff"/>
+
+  <rect x="9" y="20" width="2.5" height="2.5" rx="0.5" fill="#a5a0ff"/>
+  <rect x="13" y="20" width="2.5" height="2.5" rx="0.5" fill="#a5a0ff"/>
+  <rect x="17" y="20" width="2.5" height="2.5" rx="0.5" fill="#a5a0ff"/>
+</svg>
