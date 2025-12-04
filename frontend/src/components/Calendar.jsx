@@ -44,10 +44,13 @@ export default function CalendarComponent() {
   };
 
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-[#e3e8ee] p-6 h-full flex flex-col">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold text-[#0a2540]">Family Calendar</h2>
+    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-[#e3e8ee] p-4 md:p-6 h-full flex flex-col">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3 sm:gap-0">
         <div className="flex items-center gap-2">
+          <img src="/calendar-icon.svg" alt="Calendar" className="w-6 h-6 text-[#635bff]" />
+          <h2 className="text-xl md:text-2xl font-semibold text-[#0a2540]">Family Calendar</h2>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
           {isLoading && (
             <span className="text-xs text-[#727f96]">Loading events...</span>
           )}
@@ -62,7 +65,7 @@ export default function CalendarComponent() {
               Synced
             </span>
           )}
-          <span className="text-sm text-[#727f96] font-medium">Google Calendar</span>
+          <span className="text-xs sm:text-sm text-[#727f96] font-medium">Google Calendar</span>
         </div>
       </div>
 
@@ -72,9 +75,12 @@ export default function CalendarComponent() {
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
           initialView="dayGridMonth"
           headerToolbar={{
-            left: 'prev,next today',
+            left: 'prev,next',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek,listWeek',
+            right: 'today',
+          }}
+          footerToolbar={{
+            center: 'dayGridMonth,timeGridWeek,listWeek',
           }}
           events={events}
           eventClick={handleEventClick}
@@ -83,6 +89,10 @@ export default function CalendarComponent() {
           dayMaxEvents={true}
           weekends={true}
           height="100%"
+          contentHeight="auto"
+          aspectRatio={1.5}
+          handleWindowResize={true}
+          windowResizeDelay={100}
         />
       </div>
 
@@ -96,7 +106,11 @@ export default function CalendarComponent() {
         }
 
         .calendar-wrapper .fc .fc-toolbar.fc-header-toolbar {
-          margin-bottom: 1.5rem;
+          margin-bottom: 1rem;
+        }
+
+        .calendar-wrapper .fc .fc-toolbar.fc-footer-toolbar {
+          margin-top: 1rem;
         }
 
         .calendar-wrapper .fc .fc-button {
@@ -106,6 +120,63 @@ export default function CalendarComponent() {
           font-weight: 500;
           padding: 0.5rem 1rem;
           transition: all 0.2s;
+        }
+
+        /* Mobile responsive styles */
+        @media (max-width: 640px) {
+          .calendar-wrapper .fc .fc-toolbar.fc-header-toolbar {
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+          }
+
+          .calendar-wrapper .fc .fc-toolbar-chunk {
+            display: flex;
+            justify-content: center;
+          }
+
+          .calendar-wrapper .fc .fc-toolbar-title {
+            font-size: 1.125rem !important;
+          }
+
+          .calendar-wrapper .fc .fc-button {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+          }
+
+          .calendar-wrapper .fc .fc-col-header-cell {
+            font-size: 0.65rem;
+            padding: 0.5rem 0.25rem;
+          }
+
+          .calendar-wrapper .fc .fc-daygrid-day-number {
+            font-size: 0.875rem;
+            padding: 0.25rem;
+          }
+
+          .calendar-wrapper .fc .fc-event {
+            font-size: 0.75rem;
+            padding: 0.125rem 0.25rem;
+          }
+
+          .calendar-wrapper .fc .fc-daygrid-event-harness {
+            margin-top: 1px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .calendar-wrapper .fc .fc-toolbar-title {
+            font-size: 1rem !important;
+          }
+
+          .calendar-wrapper .fc .fc-button {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+          }
+
+          .calendar-wrapper .fc .fc-col-header-cell-cushion {
+            padding: 0.25rem 0;
+          }
         }
 
         .calendar-wrapper .fc .fc-button:hover {
