@@ -8,6 +8,22 @@ module Api
       before_action :init_service, only: [:sync, :create]
 
       def sync
+        if @service.nil? || !@service.authorized?
+          auth_url = begin
+            GoogleCalendarService.new.authorization_url
+          rescue => e
+            Rails.logger.error "Failed to generate auth URL: #{e.message}"
+            nil
+          end
+          
+          render json: {
+            success: false,
+            needs_auth: true,
+            authorization_url: auth_url
+          }, status: :unauthorized
+          return
+        end
+
         events = @service.list_events
 
         render json: {
@@ -25,8 +41,7 @@ module Api
       rescue => e
         render json: {
           success: false,
-          error: e.message,
-          needs_auth: @service.nil?
+          error: e.message
         }, status: :unprocessable_entity
       end
 

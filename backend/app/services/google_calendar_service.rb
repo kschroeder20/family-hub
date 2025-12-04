@@ -11,7 +11,29 @@ class GoogleCalendarService
     @service.authorization = authorize
   end
 
+  def authorized?
+    @service&.authorization.present?
+  end
+
+  def authorization_url
+    return nil if authorized?
+    
+    client_id = Google::Auth::ClientId.new(
+      ENV['GOOGLE_CLIENT_ID'],
+      ENV['GOOGLE_CLIENT_SECRET']
+    )
+
+    token_store = Google::Auth::Stores::FileTokenStore.new(
+      file: Rails.root.join('tmp', 'tokens.yaml')
+    )
+
+    authorizer = Google::Auth::UserAuthorizer.new(client_id, SCOPE, token_store)
+    authorizer.get_authorization_url(redirect_uri: ENV['GOOGLE_REDIRECT_URI'])
+  end
+
   def list_events(time_min = Time.now, time_max = 1.month.from_now)
+    return [] unless authorized?
+    
     result = @service.list_events(
       ENV['GOOGLE_CALENDAR_ID'],
       max_results: 100,
@@ -27,6 +49,8 @@ class GoogleCalendarService
   end
 
   def create_event(summary, start_time, end_time, description = nil)
+    return nil unless authorized?
+    
     event = Google::Apis::CalendarV3::Event.new(
       summary: summary,
       description: description,
@@ -44,6 +68,8 @@ class GoogleCalendarService
   end
 
   def update_event(event_id, summary: nil, start_time: nil, end_time: nil, description: nil)
+    return nil unless authorized?
+    
     event = @service.get_event(ENV['GOOGLE_CALENDAR_ID'], event_id)
 
     event.summary = summary if summary
@@ -67,6 +93,7 @@ class GoogleCalendarService
   end
 
   def delete_event(event_id)
+    return nil unless authorized?
     @service.delete_event(ENV['GOOGLE_CALENDAR_ID'], event_id)
   end
 
