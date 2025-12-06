@@ -1,6 +1,5 @@
 require 'google/apis/calendar_v3'
 require 'googleauth'
-require 'googleauth/stores/file_token_store'
 
 module Api
   module V1
@@ -9,13 +8,8 @@ module Api
 
       def sync
         if @service.nil? || !@service.authorized?
-          auth_url = begin
-            GoogleCalendarService.new.authorization_url
-          rescue => e
-            Rails.logger.error "Failed to generate auth URL: #{e.message}"
-            nil
-          end
-          
+          auth_url = generate_auth_url
+
           render json: {
             success: false,
             needs_auth: true,
@@ -97,9 +91,7 @@ module Api
             ENV['GOOGLE_CLIENT_SECRET']
           )
 
-          token_store = Google::Auth::Stores::FileTokenStore.new(
-            file: Rails.root.join('tmp', 'tokens.yaml')
-          )
+          token_store = DatabaseTokenStore.new
 
           authorizer = Google::Auth::UserAuthorizer.new(
             client_id,
@@ -134,6 +126,30 @@ module Api
       rescue => e
         Rails.logger.error "Failed to initialize Google Calendar service: #{e.message}"
         @service = nil
+      end
+
+      def generate_auth_url
+        require_relative '../../../../lib/database_token_store'
+
+        client_id = Google::Auth::ClientId.new(
+          ENV['GOOGLE_CLIENT_ID'],
+          ENV['GOOGLE_CLIENT_SECRET']
+        )
+
+        token_store = DatabaseTokenStore.new
+
+        authorizer = Google::Auth::UserAuthorizer.new(
+          client_id,
+          Google::Apis::CalendarV3::AUTH_CALENDAR,
+          token_store,
+          ENV['GOOGLE_REDIRECT_URI']
+        )
+
+        authorizer.get_authorization_url(redirect_uri: ENV['GOOGLE_REDIRECT_URI'])
+      rescue => e
+        Rails.logger.error "Failed to generate authorization URL: #{e.message}"
+        Rails.logger.error e.backtrace.join("\n")
+        nil
       end
     end
   end
