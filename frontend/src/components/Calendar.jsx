@@ -64,6 +64,10 @@ export default function CalendarComponent() {
     <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-[#e3e8ee] p-4 md:p-6 h-full flex flex-col">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3 sm:gap-0">
         <div className="flex items-center gap-2">
+          <img src="/calendar-icon.svg" alt="Calendar" className="w-6 h-6 text-[#635bff]" />
+          <h2 className="text-xl md:text-2xl font-semibold text-[#0a2540]">Family Calendar</h2>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
           {isLoading ? (
             <span className="text-xs text-[#727f96]">Loading events...</span>
           ) : googleCalendarData?.needs_auth && googleCalendarData?.authorization_url ? (
@@ -84,7 +88,7 @@ export default function CalendarComponent() {
               Sync error
             </span>
           ) : null}
-          <span className="text-sm text-[#727f96] font-medium">Google Calendar</span>
+          <span className="text-xs sm:text-sm text-[#727f96] font-medium">Google Calendar</span>
         </div>
       </div>
 
