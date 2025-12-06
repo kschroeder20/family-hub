@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ["...", "nodejs", "yarn"]
+
+[phases.build]
+cmds = ["bundle install"]
+
+[start]
+cmd = "bundle exec rails server -b 0.0.0.0 -p ${PORT:-3000}"
+
+[variables]
+NIXPACKS_METADATA = "ruby"

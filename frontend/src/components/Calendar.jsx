@@ -12,14 +12,31 @@ export default function CalendarComponent() {
   const [events, setEvents] = useState([]);
 
   // Fetch Google Calendar events
-  const { data: googleCalendarData, isLoading, isError, error } = useQuery({
+  const { data: googleCalendarData, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['googleCalendar'],
     queryFn: async () => {
-      const response = await syncGoogleCalendar();
-      return response.data;
+      try {
+        const response = await syncGoogleCalendar();
+        return response.data;
+      } catch (err) {
+        // If it's a 401 error with auth details, return the error data
+        if (err.response?.status === 401 && err.response?.data) {
+          return err.response.data;
+        }
+        throw err;
+      }
     },
     refetchInterval: 60000, // Refetch every minute
+    retry: false, // Don't retry if auth is needed
   });
+
+  const handleAuthorize = () => {
+    if (googleCalendarData?.authorization_url) {
+      window.open(googleCalendarData.authorization_url, '_blank', 'width=600,height=700');
+      // Refetch after a few seconds to check if auth was successful
+      setTimeout(() => refetch(), 5000);
+    }
+  };
 
   // Update events when Google Calendar data changes
   useEffect(() => {
@@ -47,25 +64,27 @@ export default function CalendarComponent() {
     <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-[#e3e8ee] p-4 md:p-6 h-full flex flex-col">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3 sm:gap-0">
         <div className="flex items-center gap-2">
-          <img src="/calendar-icon.svg" alt="Calendar" className="w-6 h-6 text-[#635bff]" />
-          <h2 className="text-xl md:text-2xl font-semibold text-[#0a2540]">Family Calendar</h2>
-        </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          {isLoading && (
+          {isLoading ? (
             <span className="text-xs text-[#727f96]">Loading events...</span>
-          )}
-          {isError && (
-            <span className="text-xs text-red-500" title={error?.message}>
-              {googleCalendarData?.needs_auth ? 'Auth needed' : 'Sync error'}
-            </span>
-          )}
-          {!isLoading && !isError && googleCalendarData?.success && (
+          ) : googleCalendarData?.needs_auth && googleCalendarData?.authorization_url ? (
+            <button
+              onClick={handleAuthorize}
+              className="text-xs font-medium text-[#635bff] hover:text-[#4f46e5] underline decoration-dotted underline-offset-2 transition-colors duration-200"
+              title="Click to authorize Google Calendar access"
+            >
+              Authorize Google Calendar
+            </button>
+          ) : googleCalendarData?.success ? (
             <span className="text-xs text-green-600 flex items-center gap-1">
               <span className="inline-block w-2 h-2 bg-green-600 rounded-full"></span>
               Synced
             </span>
-          )}
-          <span className="text-xs sm:text-sm text-[#727f96] font-medium">Google Calendar</span>
+          ) : isError ? (
+            <span className="text-xs text-red-500" title={error?.message}>
+              Sync error
+            </span>
+          ) : null}
+          <span className="text-sm text-[#727f96] font-medium">Google Calendar</span>
         </div>
       </div>
 

@@ -1,6 +1,6 @@
 require 'google/apis/calendar_v3'
 require 'googleauth'
-require 'googleauth/stores/file_token_store'
+require_relative '../../lib/database_token_store'
 
 class GoogleCalendarService
   SCOPE = Google::Apis::CalendarV3::AUTH_CALENDAR
@@ -17,15 +17,13 @@ class GoogleCalendarService
 
   def authorization_url
     return nil if authorized?
-    
+
     client_id = Google::Auth::ClientId.new(
       ENV['GOOGLE_CLIENT_ID'],
       ENV['GOOGLE_CLIENT_SECRET']
     )
 
-    token_store = Google::Auth::Stores::FileTokenStore.new(
-      file: Rails.root.join('tmp', 'tokens.yaml')
-    )
+    token_store = DatabaseTokenStore.new
 
     authorizer = Google::Auth::UserAuthorizer.new(
       client_id,
@@ -110,9 +108,7 @@ class GoogleCalendarService
       ENV['GOOGLE_CLIENT_SECRET']
     )
 
-    token_store = Google::Auth::Stores::FileTokenStore.new(
-      file: Rails.root.join('tmp', 'tokens.yaml')
-    )
+    token_store = DatabaseTokenStore.new
 
     authorizer = Google::Auth::UserAuthorizer.new(
       client_id,
