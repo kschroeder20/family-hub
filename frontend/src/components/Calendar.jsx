@@ -168,21 +168,8 @@ export default function CalendarComponent() {
   const decoration = getMonthDecoration();
 
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border-4 p-3 md:p-4 h-full flex flex-col overflow-hidden relative" style={{
-      borderImage: `linear-gradient(135deg, ${decoration.colors.join(', ')}) 1`
-    }}>
-      {/* Seasonal Decoration Bar */}
-      <div className="absolute top-0 left-0 right-0 h-8 flex items-center justify-center gap-2 rounded-t-2xl overflow-hidden" style={{
-        background: `linear-gradient(135deg, ${decoration.colors.join(', ')})`
-      }}>
-        {[...Array(8)].map((_, i) => (
-          <span key={i} className="text-lg animate-pulse" style={{ animationDelay: `${i * 0.2}s` }}>
-            {decoration.emoji}
-          </span>
-        ))}
-      </div>
-
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3 sm:gap-0 mt-8">
+    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-[#e3e8ee] p-3 md:p-4 h-full flex flex-col overflow-hidden">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3 sm:gap-0">
         <div className="flex items-center gap-2">
           {isLoading ? (
             <span className="text-xs text-[#727f96]">Loading events...</span>
@@ -232,6 +219,27 @@ export default function CalendarComponent() {
           aspectRatio={1.8}
           handleWindowResize={true}
           windowResizeDelay={100}
+          viewDidMount={(info) => {
+            // Add seasonal emoji to calendar title
+            const titleElement = document.querySelector('.fc-toolbar-title');
+            if (titleElement && !titleElement.querySelector('.seasonal-emoji')) {
+              const emojiSpan = document.createElement('span');
+              emojiSpan.className = 'seasonal-emoji';
+              emojiSpan.textContent = ` ${decoration.emoji}`;
+              emojiSpan.style.marginLeft = '8px';
+              titleElement.appendChild(emojiSpan);
+            }
+          }}
+          datesSet={(info) => {
+            // Update emoji when month changes
+            const titleElement = document.querySelector('.fc-toolbar-title');
+            if (titleElement) {
+              const existingEmoji = titleElement.querySelector('.seasonal-emoji');
+              if (existingEmoji) {
+                existingEmoji.textContent = ` ${decoration.emoji}`;
+              }
+            }
+          }}
         />
       </div>
 
