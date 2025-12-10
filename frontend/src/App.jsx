@@ -3,6 +3,7 @@ import { getCurrentMonthBackground } from './utils/backgrounds';
 import CalendarComponent from './components/Calendar';
 import Chores from './components/Chores';
 import GroceryList from './components/GroceryList';
+import Weather from './components/Weather';
 
 const queryClient = new QueryClient();
 
@@ -29,8 +30,9 @@ function App() {
               <CalendarComponent />
             </div>
 
-            {/* Chores and Grocery List stacked on right side - 25% width on desktop */}
+            {/* Weather, Chores and Grocery List stacked on right side - 25% width on desktop */}
             <div className="w-full lg:w-[25%] flex flex-col gap-3 sm:gap-4 min-h-0">
+              <Weather />
               <div className="flex-1 min-h-0 overflow-auto">
                 <Chores />
               </div>
