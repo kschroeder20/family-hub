@@ -23,18 +23,18 @@ function App() {
             </h1>
           </header>
 
-          <div className="flex-1 flex flex-col gap-3 sm:gap-4 overflow-hidden">
-            {/* Calendar - Full width on top */}
-            <div className="w-full flex-1 min-h-0 lg:flex-[0_0_55%]">
+          <div className="flex-1 flex flex-col lg:flex-row gap-3 sm:gap-4 overflow-hidden">
+            {/* Calendar - 75% width on desktop, full width on mobile */}
+            <div className="w-full lg:w-[75%] flex-1 min-h-0">
               <CalendarComponent />
             </div>
 
-            {/* Chores and Grocery List underneath - side by side on wide screens, stacked on mobile */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 flex-1 min-h-0 lg:flex-[0_0_40%]">
-              <div className="min-h-0 overflow-auto">
+            {/* Chores and Grocery List stacked on right side - 25% width on desktop */}
+            <div className="w-full lg:w-[25%] flex flex-col gap-3 sm:gap-4 min-h-0">
+              <div className="flex-1 min-h-0 overflow-auto">
                 <Chores />
               </div>
-              <div className="min-h-0 overflow-auto">
+              <div className="flex-1 min-h-0 overflow-auto">
                 <GroceryList />
               </div>
             </div>
