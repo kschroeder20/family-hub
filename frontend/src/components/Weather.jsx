@@ -101,6 +101,7 @@ export default function Weather() {
   const description = weatherData.weather[0]?.description || '';
   const weatherMain = weatherData.weather[0]?.main || '';
   const weatherId = weatherData.weather[0]?.id || 0;
+  const weatherIcon = weatherData.weather[0]?.icon || '01d';
   const location = weatherData.name || 'Your Area';
 
   const style = getWeatherStyle(weatherMain, weatherId);
@@ -145,7 +146,11 @@ export default function Weather() {
 
       <div className="relative z-10 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="text-3xl">{style.icon}</span>
+          <img
+            src={`https://openweathermap.org/img/wn/${weatherIcon}@2x.png`}
+            alt={description}
+            className="w-12 h-12 drop-shadow-md"
+          />
           <div>
             <div className="flex items-baseline gap-1">
               <span className="text-2xl font-bold text-white drop-shadow-md">{temp}°</span>
