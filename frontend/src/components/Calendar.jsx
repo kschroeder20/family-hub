@@ -248,6 +248,7 @@ export default function CalendarComponent() {
               emojiSpan.className = 'seasonal-emoji';
               emojiSpan.textContent = ` ${decoration.emoji}`;
               emojiSpan.style.marginLeft = '8px';
+              emojiSpan.style.fontFamily = '"Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif';
               titleElement.appendChild(emojiSpan);
             }
           }}
@@ -258,12 +259,14 @@ export default function CalendarComponent() {
               const existingEmoji = titleElement.querySelector('.seasonal-emoji');
               if (existingEmoji) {
                 existingEmoji.textContent = ` ${decoration.emoji}`;
+                existingEmoji.style.fontFamily = '"Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif';
               } else {
                 // Add emoji if missing
                 const emojiSpan = document.createElement('span');
                 emojiSpan.className = 'seasonal-emoji';
                 emojiSpan.textContent = ` ${decoration.emoji}`;
                 emojiSpan.style.marginLeft = '8px';
+                emojiSpan.style.fontFamily = '"Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif';
                 titleElement.appendChild(emojiSpan);
               }
             }
