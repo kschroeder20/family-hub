@@ -5,7 +5,6 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
-import googleCalendarPlugin from '@fullcalendar/google-calendar';
 import { syncGoogleCalendar } from '../services/api';
 
 export default function CalendarComponent() {
@@ -199,9 +198,8 @@ export default function CalendarComponent() {
       <div className="flex-1 calendar-wrapper overflow-auto min-h-0">
         <FullCalendar
           ref={calendarRef}
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin, googleCalendarPlugin]}
+          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
           initialView="dayGridMonth"
-          googleCalendarApiKey={import.meta.env.VITE_OPENWEATHER_API_KEY || '0add46028dbeda42f789114aeeaeb091'}
           headerToolbar={{
             left: 'prev,next',
             center: 'title',
@@ -210,18 +208,7 @@ export default function CalendarComponent() {
           footerToolbar={{
             center: 'dayGridMonth,timeGridWeek,listWeek',
           }}
-          eventSources={[
-            {
-              events: events,
-              color: '#635bff'
-            },
-            {
-              googleCalendarId: 'en.usa#holiday@group.v.calendar.google.com',
-              color: '#FF6347',
-              textColor: 'white',
-              className: 'holiday-event'
-            }
-          ]}
+          events={events}
           eventClick={handleEventClick}
           editable={false}
           selectable={false}
