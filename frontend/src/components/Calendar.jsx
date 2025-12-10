@@ -220,24 +220,38 @@ export default function CalendarComponent() {
           handleWindowResize={true}
           windowResizeDelay={100}
           viewDidMount={(info) => {
-            // Add seasonal emoji to calendar title
+            // Add seasonal emoji to both sides of calendar title
             const titleElement = document.querySelector('.fc-toolbar-title');
-            if (titleElement && !titleElement.querySelector('.seasonal-emoji')) {
-              const emojiSpan = document.createElement('span');
-              emojiSpan.className = 'seasonal-emoji';
-              emojiSpan.textContent = ` ${decoration.emoji}`;
-              emojiSpan.style.marginLeft = '8px';
-              titleElement.appendChild(emojiSpan);
+            if (titleElement && !titleElement.querySelector('.seasonal-emoji-left')) {
+              const originalText = titleElement.textContent;
+              titleElement.innerHTML = '';
+
+              const leftEmoji = document.createElement('span');
+              leftEmoji.className = 'seasonal-emoji-left';
+              leftEmoji.textContent = `${decoration.emoji} `;
+              leftEmoji.style.marginRight = '8px';
+
+              const titleText = document.createElement('span');
+              titleText.textContent = originalText;
+
+              const rightEmoji = document.createElement('span');
+              rightEmoji.className = 'seasonal-emoji-right';
+              rightEmoji.textContent = ` ${decoration.emoji}`;
+              rightEmoji.style.marginLeft = '8px';
+
+              titleElement.appendChild(leftEmoji);
+              titleElement.appendChild(titleText);
+              titleElement.appendChild(rightEmoji);
             }
           }}
           datesSet={(info) => {
             // Update emoji when month changes
             const titleElement = document.querySelector('.fc-toolbar-title');
             if (titleElement) {
-              const existingEmoji = titleElement.querySelector('.seasonal-emoji');
-              if (existingEmoji) {
-                existingEmoji.textContent = ` ${decoration.emoji}`;
-              }
+              const leftEmoji = titleElement.querySelector('.seasonal-emoji-left');
+              const rightEmoji = titleElement.querySelector('.seasonal-emoji-right');
+              if (leftEmoji) leftEmoji.textContent = `${decoration.emoji} `;
+              if (rightEmoji) rightEmoji.textContent = ` ${decoration.emoji}`;
             }
           }}
         />
