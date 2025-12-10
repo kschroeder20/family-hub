@@ -10,6 +10,7 @@ import { syncGoogleCalendar } from '../services/api';
 export default function CalendarComponent() {
   const calendarRef = useRef(null);
   const [events, setEvents] = useState([]);
+  const [todaysEvents, setTodaysEvents] = useState([]);
 
   // Fetch Google Calendar events
   const { data: googleCalendarData, isLoading, isError, error, refetch } = useQuery({
@@ -38,6 +39,26 @@ export default function CalendarComponent() {
     }
   };
 
+  // Google Calendar color mapping
+  const getEventColor = (colorId) => {
+    // Google Calendar color IDs to hex colors
+    const colorMap = {
+      '1': '#7986CB', // Lavender
+      '2': '#33B679', // Sage
+      '3': '#8E24AA', // Grape
+      '4': '#E67C73', // Flamingo
+      '5': '#F6BF26', // Banana
+      '6': '#F4511E', // Tangerine
+      '7': '#039BE5', // Peacock
+      '8': '#616161', // Graphite
+      '9': '#3F51B5', // Blueberry
+      '10': '#0B8043', // Basil
+      '11': '#D50000', // Tomato
+    };
+
+    return colorMap[colorId] || '#635bff'; // Default to our purple if no color
+  };
+
   // Update events when Google Calendar data changes
   useEffect(() => {
     if (googleCalendarData?.success && googleCalendarData?.events) {
@@ -46,12 +67,27 @@ export default function CalendarComponent() {
         title: event.summary,
         start: event.start,
         end: event.end,
-        backgroundColor: '#635bff',
+        backgroundColor: getEventColor(event.color_id),
+        borderColor: getEventColor(event.color_id),
         extendedProps: {
           description: event.description,
+          colorId: event.color_id,
         },
       }));
       setEvents(formattedEvents);
+
+      // Filter today's events
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      const eventsToday = formattedEvents.filter(event => {
+        const eventStart = new Date(event.start);
+        return eventStart >= today && eventStart < tomorrow;
+      }).sort((a, b) => new Date(a.start) - new Date(b.start));
+
+      setTodaysEvents(eventsToday);
     }
   }, [googleCalendarData]);
 
@@ -113,6 +149,51 @@ export default function CalendarComponent() {
           handleWindowResize={true}
           windowResizeDelay={100}
         />
+      </div>
+
+      {/* Today's Events Section */}
+      <div className="mt-6 pt-6 border-t border-[#e3e8ee]">
+        <h2 className="text-lg font-semibold text-[#0a2540] mb-3 flex items-center gap-2">
+          <span className="inline-block w-2 h-2 bg-[#635bff] rounded-full"></span>
+          Today's Events
+        </h2>
+        <div className="space-y-2">
+          {todaysEvents.length === 0 ? (
+            <p className="text-sm text-[#727f96] italic">No events scheduled for today</p>
+          ) : (
+            todaysEvents.map(event => {
+              const startTime = new Date(event.start).toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+              });
+              const endTime = event.end ? new Date(event.end).toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+              }) : null;
+
+              return (
+                <div
+                  key={event.id}
+                  className="flex items-start gap-3 p-3 bg-white rounded-lg border border-[#e3e8ee] hover:border-[#635bff] hover:shadow-sm transition-all duration-200 cursor-pointer"
+                  onClick={() => handleEventClick({ event: { title: event.title, start: new Date(event.start), end: event.end ? new Date(event.end) : null } })}
+                >
+                  <div className="flex-shrink-0 w-16 text-center">
+                    <div className="text-sm font-semibold text-[#635bff]">{startTime}</div>
+                    {endTime && <div className="text-xs text-[#727f96]">{endTime}</div>}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-medium text-[#0a2540] truncate">{event.title}</h3>
+                    {event.extendedProps?.description && (
+                      <p className="text-xs text-[#727f96] mt-1 line-clamp-1">{event.extendedProps.description}</p>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
       </div>
 
       <style jsx global>{`
@@ -212,8 +293,27 @@ export default function CalendarComponent() {
 
         .calendar-wrapper .fc .fc-toolbar-title {
           color: #0a2540;
-          font-size: 1.5rem;
+          font-size: 1.25rem;
           font-weight: 600;
+        }
+
+        /* Responsive title sizes for larger screens */
+        @media (min-width: 768px) {
+          .calendar-wrapper .fc .fc-toolbar-title {
+            font-size: 1.5rem;
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .calendar-wrapper .fc .fc-toolbar-title {
+            font-size: 1.75rem;
+          }
+        }
+
+        @media (min-width: 1536px) {
+          .calendar-wrapper .fc .fc-toolbar-title {
+            font-size: 2rem;
+          }
         }
 
         .calendar-wrapper .fc-theme-standard td,

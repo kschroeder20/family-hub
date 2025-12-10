@@ -28,7 +28,8 @@ module Api
               summary: event.summary,
               start: event.start.date_time || event.start.date,
               end: event.end.date_time || event.end.date,
-              description: event.description
+              description: event.description,
+              color_id: event.color_id
             }
           }
         }

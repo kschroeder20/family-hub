@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Tab } from '@headlessui/react';
 import { PlusIcon, TrashIcon, CheckIcon, Bars3Icon } from '@heroicons/react/24/outline';
-import { format, isPast, parseISO } from 'date-fns';
+import { format, isPast, parseISO, addDays, isWithinInterval, startOfDay } from 'date-fns';
 import { getChores, getFamilyMembers, createChore, updateChore, deleteChore } from '../services/api';
 import clsx from 'clsx';
 import {
@@ -203,9 +203,40 @@ export default function Chores() {
     return memberChores;
   };
 
+  const getChoreCounts = (memberId) => {
+    const memberChores = chores.filter((chore) => chore.family_member.id === memberId && !chore.completed);
+    const overdueCount = memberChores.filter(chore => isOverdue(chore.due_date, chore.completed)).length;
+    const activeCount = memberChores.length - overdueCount;
+    return { activeCount, overdueCount };
+  };
+
   const isOverdue = (dueDate, completed) => {
     if (!dueDate || completed) return false;
     return isPast(parseISO(dueDate));
+  };
+
+  const getUpcomingChores = () => {
+    const today = startOfDay(new Date());
+    const sevenDaysFromNow = addDays(today, 7);
+
+    return chores
+      .filter(chore => {
+        if (chore.completed) return false;
+
+        // Include chores without due dates
+        if (!chore.due_date) return true;
+
+        // Include chores due within the next 7 days
+        const dueDate = parseISO(chore.due_date);
+        return isWithinInterval(dueDate, { start: today, end: sevenDaysFromNow });
+      })
+      .sort((a, b) => {
+        // Sort: chores with dates first (by date), then chores without dates
+        if (!a.due_date && !b.due_date) return 0;
+        if (!a.due_date) return 1;
+        if (!b.due_date) return -1;
+        return parseISO(a.due_date) - parseISO(b.due_date);
+      });
   };
 
   const handleDragEnd = (event) => {
@@ -278,29 +309,94 @@ export default function Chores() {
         </div>
       )}
 
+      {/* Upcoming Chores Section */}
+      {getUpcomingChores().length > 0 && (
+        <div className="mb-4 p-4 bg-gradient-to-br from-[#f6f9fc] to-[#e8ecf1] rounded-lg border border-[#e3e8ee]">
+          <h3 className="text-sm font-semibold text-[#0a2540] mb-3 flex items-center gap-2">
+            <span className="inline-block w-2 h-2 bg-[#635bff] rounded-full"></span>
+            Upcoming Chores (Next 7 Days)
+          </h3>
+          <div className="space-y-2">
+            {getUpcomingChores().map((chore) => (
+              <div
+                key={chore.id}
+                className="flex items-center gap-3 p-3 bg-white rounded-lg border border-[#e3e8ee] hover:shadow-sm transition-all"
+              >
+                <div
+                  className="w-3 h-3 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: chore.family_member.color }}
+                />
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-sm font-medium text-[#0a2540] truncate">
+                    {chore.title}
+                  </h4>
+                  <p className="text-xs text-[#727f96]">
+                    {chore.family_member.name}
+                  </p>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  {chore.due_date ? (
+                    <>
+                      <p className="text-xs font-medium text-[#635bff]">
+                        {format(parseISO(chore.due_date), 'MMM d')}
+                      </p>
+                      <p className="text-xs text-[#727f96]">
+                        {format(parseISO(chore.due_date), 'EEE')}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-xs text-[#aab4c1] italic">
+                      No date
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <Tab.Group selectedIndex={selectedMemberIndex} onChange={setSelectedMemberIndex}>
         <Tab.List className="flex space-x-2 rounded-xl bg-[#f6f9fc] p-1 mb-4 border border-[#e3e8ee]">
-          {familyMembers.map((member) => (
-            <Tab
-              key={member.id}
-              className={({ selected }) =>
-                clsx(
-                  'w-full rounded-lg py-2.5 text-sm font-medium leading-5 transition-all',
-                  selected
-                    ? 'bg-white shadow-md text-[#0a2540]'
-                    : 'text-[#727f96] hover:bg-white/50 hover:text-[#0a2540]'
-                )
-              }
-            >
-              <div className="flex items-center justify-center gap-2">
-                <div
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: member.color }}
-                />
-                {member.name}
-              </div>
-            </Tab>
-          ))}
+          {familyMembers.map((member) => {
+            const { activeCount, overdueCount } = getChoreCounts(member.id);
+            return (
+              <Tab
+                key={member.id}
+                className={({ selected }) =>
+                  clsx(
+                    'w-full rounded-lg py-2.5 text-sm font-medium leading-5 transition-all',
+                    selected
+                      ? 'bg-white shadow-md text-[#0a2540]'
+                      : 'text-[#727f96] hover:bg-white/50 hover:text-[#0a2540]'
+                  )
+                }
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <div
+                    className="w-3 h-3 rounded-full"
+                    style={{ backgroundColor: member.color }}
+                  />
+                  <span>{member.name}</span>
+                  <div className="flex items-center gap-1">
+                    {activeCount > 0 && (
+                      <div
+                        className="flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-semibold text-white"
+                        style={{ backgroundColor: member.color }}
+                      >
+                        {activeCount}
+                      </div>
+                    )}
+                    {overdueCount > 0 && (
+                      <div className="flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-xs font-semibold text-white">
+                        {overdueCount}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </Tab>
+            );
+          })}
         </Tab.List>
         <Tab.Panels className="flex-1 overflow-y-auto">
           {familyMembers.map((member) => {
