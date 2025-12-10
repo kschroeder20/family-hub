@@ -1,6 +1,7 @@
 module Api
   module V1
     class ChoresController < ApplicationController
+      include ApiKeyAuthenticatable
       before_action :set_chore, only: [:show, :update, :destroy]
 
       def index

@@ -1,6 +1,6 @@
 class GroceryItem < ApplicationRecord
-  validates :name, presence: true
-  validates :quantity, numericality: { greater_than: 0 }
+  validates :name, presence: true, length: { maximum: 255 }
+  validates :quantity, numericality: { greater_than: 0, less_than_or_equal_to: 999 }
 
   scope :unpurchased, -> { where(purchased: false) }
   scope :purchased, -> { where(purchased: true) }

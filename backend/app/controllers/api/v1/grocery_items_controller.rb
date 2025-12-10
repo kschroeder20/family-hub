@@ -1,6 +1,7 @@
 module Api
   module V1
     class GroceryItemsController < ApplicationController
+      include ApiKeyAuthenticatable
       before_action :set_grocery_item, only: [:show, :update, :destroy]
 
       def index
