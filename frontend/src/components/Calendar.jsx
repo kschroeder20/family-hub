@@ -96,9 +96,93 @@ export default function CalendarComponent() {
     alert(`Event: ${clickInfo.event.title}\nStart: ${clickInfo.event.start?.toLocaleString() || 'N/A'}\nEnd: ${clickInfo.event.end?.toLocaleString() || 'N/A'}`);
   };
 
+  const getMonthDecoration = () => {
+    const currentMonth = new Date().getMonth(); // 0-11
+
+    const decorations = {
+      0: { // January - New Year
+        emoji: '🎉',
+        colors: ['#FFD700', '#C0C0C1', '#FF69B4'],
+        theme: 'New Year'
+      },
+      1: { // February - Valentine's
+        emoji: '💝',
+        colors: ['#FF1493', '#FF69B4', '#FFB6C1'],
+        theme: 'Valentine\'s Day'
+      },
+      2: { // March - St. Patrick's
+        emoji: '🍀',
+        colors: ['#228B22', '#90EE90', '#32CD32'],
+        theme: 'St. Patrick\'s Day'
+      },
+      3: { // April - Spring/Easter
+        emoji: '🌸',
+        colors: ['#FFB6C1', '#98FB98', '#87CEEB'],
+        theme: 'Spring'
+      },
+      4: { // May - Flowers
+        emoji: '🌺',
+        colors: ['#FF69B4', '#FFA500', '#9370DB'],
+        theme: 'Spring Flowers'
+      },
+      5: { // June - Summer
+        emoji: '☀️',
+        colors: ['#FFD700', '#FFA500', '#FF6347'],
+        theme: 'Summer'
+      },
+      6: { // July - Independence Day
+        emoji: '🎆',
+        colors: ['#FF0000', '#FFFFFF', '#0000FF'],
+        theme: 'Independence Day'
+      },
+      7: { // August - Beach/Summer
+        emoji: '🏖️',
+        colors: ['#87CEEB', '#FFD700', '#FF6347'],
+        theme: 'Beach'
+      },
+      8: { // September - Fall
+        emoji: '🍂',
+        colors: ['#FF8C00', '#D2691E', '#8B4513'],
+        theme: 'Fall'
+      },
+      9: { // October - Halloween
+        emoji: '🎃',
+        colors: ['#FF8C00', '#000000', '#9370DB'],
+        theme: 'Halloween'
+      },
+      10: { // November - Thanksgiving
+        emoji: '🦃',
+        colors: ['#D2691E', '#FF8C00', '#8B4513'],
+        theme: 'Thanksgiving'
+      },
+      11: { // December - Christmas
+        emoji: '🎄',
+        colors: ['#DC143C', '#228B22', '#FFD700'],
+        theme: 'Christmas'
+      }
+    };
+
+    return decorations[currentMonth];
+  };
+
+  const decoration = getMonthDecoration();
+
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-[#e3e8ee] p-3 md:p-4 h-full flex flex-col overflow-hidden">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3 sm:gap-0">
+    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border-4 p-3 md:p-4 h-full flex flex-col overflow-hidden relative" style={{
+      borderImage: `linear-gradient(135deg, ${decoration.colors.join(', ')}) 1`
+    }}>
+      {/* Seasonal Decoration Bar */}
+      <div className="absolute top-0 left-0 right-0 h-8 flex items-center justify-center gap-2 rounded-t-2xl overflow-hidden" style={{
+        background: `linear-gradient(135deg, ${decoration.colors.join(', ')})`
+      }}>
+        {[...Array(8)].map((_, i) => (
+          <span key={i} className="text-lg animate-pulse" style={{ animationDelay: `${i * 0.2}s` }}>
+            {decoration.emoji}
+          </span>
+        ))}
+      </div>
+
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3 sm:gap-0 mt-8">
         <div className="flex items-center gap-2">
           {isLoading ? (
             <span className="text-xs text-[#727f96]">Loading events...</span>
