@@ -259,7 +259,7 @@ export default function Chores() {
   };
 
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-[#e3e8ee] p-3 md:p-4 h-full flex flex-col overflow-hidden">
+    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-[#e3e8ee] p-3 md:p-4 lg:h-full flex flex-col overflow-hidden">
       <div className="flex justify-between items-center mb-3 flex-shrink-0">
         <h2 className="text-xl font-semibold text-[#0a2540]">Chores</h2>
         <button

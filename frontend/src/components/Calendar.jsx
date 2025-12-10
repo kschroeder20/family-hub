@@ -11,6 +11,13 @@ export default function CalendarComponent() {
   const calendarRef = useRef(null);
   const [events, setEvents] = useState([]);
   const [todaysEvents, setTodaysEvents] = useState([]);
+  const [isMobile, setIsMobile] = useState(() => {
+    // Initialize with correct value on first render
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 1024;
+    }
+    return false;
+  });
 
   // Fetch Google Calendar events
   const { data: googleCalendarData, isLoading, isError, error, refetch } = useQuery({
@@ -58,6 +65,18 @@ export default function CalendarComponent() {
 
     return colorMap[colorId] || '#635bff'; // Default to our purple if no color
   };
+
+  // Detect mobile screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024); // lg breakpoint
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Update events when Google Calendar data changes
   useEffect(() => {
@@ -168,7 +187,7 @@ export default function CalendarComponent() {
   const decoration = getMonthDecoration();
 
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-[#e3e8ee] p-3 md:p-4 h-full flex flex-col overflow-hidden">
+    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-[#e3e8ee] p-3 md:p-4 lg:h-full flex flex-col overflow-hidden">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3 sm:gap-0">
         <div className="flex items-center gap-2">
           {isLoading ? (
@@ -199,13 +218,15 @@ export default function CalendarComponent() {
         <FullCalendar
           ref={calendarRef}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
-          initialView="dayGridMonth"
+          initialView={isMobile ? 'listWeek' : 'dayGridMonth'}
           headerToolbar={{
             left: 'prev,next',
             center: 'title',
             right: 'today',
           }}
-          footerToolbar={{
+          footerToolbar={isMobile ? {
+            center: 'listWeek,timeGridWeek',
+          } : {
             center: 'dayGridMonth,timeGridWeek,listWeek',
           }}
           events={events}
