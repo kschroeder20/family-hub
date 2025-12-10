@@ -97,7 +97,7 @@ export default function CalendarComponent() {
   };
 
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-[#e3e8ee] p-4 md:p-6 h-full flex flex-col">
+    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-[#e3e8ee] p-3 md:p-4 h-full flex flex-col overflow-hidden">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3 sm:gap-0">
         <div className="flex items-center gap-2">
           {isLoading ? (
@@ -124,7 +124,7 @@ export default function CalendarComponent() {
         </div>
       </div>
 
-      <div className="flex-1 calendar-wrapper">
+      <div className="flex-1 calendar-wrapper overflow-auto min-h-0">
         <FullCalendar
           ref={calendarRef}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
@@ -145,19 +145,19 @@ export default function CalendarComponent() {
           weekends={true}
           height="100%"
           contentHeight="auto"
-          aspectRatio={1.5}
+          aspectRatio={1.8}
           handleWindowResize={true}
           windowResizeDelay={100}
         />
       </div>
 
       {/* Today's Events Section */}
-      <div className="mt-6 pt-6 border-t border-[#e3e8ee]">
-        <h2 className="text-lg font-semibold text-[#0a2540] mb-3 flex items-center gap-2">
+      <div className="mt-3 pt-3 border-t border-[#e3e8ee] flex-shrink-0">
+        <h2 className="text-sm font-semibold text-[#0a2540] mb-2 flex items-center gap-2">
           <span className="inline-block w-2 h-2 bg-[#635bff] rounded-full"></span>
           Today's Events
         </h2>
-        <div className="space-y-2">
+        <div className="space-y-1.5 max-h-32 overflow-y-auto">
           {todaysEvents.length === 0 ? (
             <p className="text-sm text-[#727f96] italic">No events scheduled for today</p>
           ) : (
@@ -176,18 +176,15 @@ export default function CalendarComponent() {
               return (
                 <div
                   key={event.id}
-                  className="flex items-start gap-3 p-3 bg-white rounded-lg border border-[#e3e8ee] hover:border-[#635bff] hover:shadow-sm transition-all duration-200 cursor-pointer"
+                  className="flex items-center gap-2 p-2 bg-white rounded-lg border border-[#e3e8ee] hover:border-[#635bff] hover:shadow-sm transition-all duration-200 cursor-pointer"
                   onClick={() => handleEventClick({ event: { title: event.title, start: new Date(event.start), end: event.end ? new Date(event.end) : null } })}
                 >
-                  <div className="flex-shrink-0 w-16 text-center">
-                    <div className="text-sm font-semibold text-[#635bff]">{startTime}</div>
-                    {endTime && <div className="text-xs text-[#727f96]">{endTime}</div>}
+                  <div className="flex-shrink-0 w-14 text-center">
+                    <div className="text-xs font-semibold text-[#635bff]">{startTime}</div>
+                    {endTime && <div className="text-[10px] text-[#727f96]">{endTime}</div>}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-medium text-[#0a2540] truncate">{event.title}</h3>
-                    {event.extendedProps?.description && (
-                      <p className="text-xs text-[#727f96] mt-1 line-clamp-1">{event.extendedProps.description}</p>
-                    )}
+                    <h3 className="text-xs font-medium text-[#0a2540] truncate">{event.title}</h3>
                   </div>
                 </div>
               );

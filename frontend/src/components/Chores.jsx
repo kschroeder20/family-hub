@@ -259,9 +259,9 @@ export default function Chores() {
   };
 
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-[#e3e8ee] p-6 h-full flex flex-col">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold text-[#0a2540]">Chores</h2>
+    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-[#e3e8ee] p-3 md:p-4 h-full flex flex-col overflow-hidden">
+      <div className="flex justify-between items-center mb-3 flex-shrink-0">
+        <h2 className="text-xl font-semibold text-[#0a2540]">Chores</h2>
         <button
           onClick={() => setIsAddingChore(!isAddingChore)}
           className="bg-[#635bff] hover:bg-[#5650e6] text-white p-2.5 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
@@ -311,41 +311,36 @@ export default function Chores() {
 
       {/* Upcoming Chores Section */}
       {getUpcomingChores().length > 0 && (
-        <div className="mb-4 p-4 bg-gradient-to-br from-[#f6f9fc] to-[#e8ecf1] rounded-lg border border-[#e3e8ee]">
-          <h3 className="text-sm font-semibold text-[#0a2540] mb-3 flex items-center gap-2">
+        <div className="mb-3 p-3 bg-gradient-to-br from-[#f6f9fc] to-[#e8ecf1] rounded-lg border border-[#e3e8ee] flex-shrink-0">
+          <h3 className="text-xs font-semibold text-[#0a2540] mb-2 flex items-center gap-2">
             <span className="inline-block w-2 h-2 bg-[#635bff] rounded-full"></span>
             Upcoming Chores (Next 7 Days)
           </h3>
-          <div className="space-y-2">
+          <div className="space-y-1.5 max-h-24 overflow-y-auto">
             {getUpcomingChores().map((chore) => (
               <div
                 key={chore.id}
-                className="flex items-center gap-3 p-3 bg-white rounded-lg border border-[#e3e8ee] hover:shadow-sm transition-all"
+                className="flex items-center gap-2 p-2 bg-white rounded-lg border border-[#e3e8ee] hover:shadow-sm transition-all"
               >
                 <div
-                  className="w-3 h-3 rounded-full flex-shrink-0"
+                  className="w-2 h-2 rounded-full flex-shrink-0"
                   style={{ backgroundColor: chore.family_member.color }}
                 />
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-medium text-[#0a2540] truncate">
+                  <h4 className="text-xs font-medium text-[#0a2540] truncate">
                     {chore.title}
                   </h4>
-                  <p className="text-xs text-[#727f96]">
+                  <p className="text-[10px] text-[#727f96]">
                     {chore.family_member.name}
                   </p>
                 </div>
                 <div className="text-right flex-shrink-0">
                   {chore.due_date ? (
-                    <>
-                      <p className="text-xs font-medium text-[#635bff]">
-                        {format(parseISO(chore.due_date), 'MMM d')}
-                      </p>
-                      <p className="text-xs text-[#727f96]">
-                        {format(parseISO(chore.due_date), 'EEE')}
-                      </p>
-                    </>
+                    <p className="text-[10px] font-medium text-[#635bff]">
+                      {format(parseISO(chore.due_date), 'MMM d')}
+                    </p>
                   ) : (
-                    <p className="text-xs text-[#aab4c1] italic">
+                    <p className="text-[10px] text-[#aab4c1] italic">
                       No date
                     </p>
                   )}
@@ -357,7 +352,7 @@ export default function Chores() {
       )}
 
       <Tab.Group selectedIndex={selectedMemberIndex} onChange={setSelectedMemberIndex}>
-        <Tab.List className="flex space-x-2 rounded-xl bg-[#f6f9fc] p-1 mb-4 border border-[#e3e8ee]">
+        <Tab.List className="flex space-x-2 rounded-xl bg-[#f6f9fc] p-1 mb-3 border border-[#e3e8ee] flex-shrink-0">
           {familyMembers.map((member) => {
             const { activeCount, overdueCount } = getChoreCounts(member.id);
             return (
@@ -365,30 +360,30 @@ export default function Chores() {
                 key={member.id}
                 className={({ selected }) =>
                   clsx(
-                    'w-full rounded-lg py-2.5 text-sm font-medium leading-5 transition-all',
+                    'w-full rounded-lg py-2 text-xs font-medium leading-5 transition-all',
                     selected
                       ? 'bg-white shadow-md text-[#0a2540]'
                       : 'text-[#727f96] hover:bg-white/50 hover:text-[#0a2540]'
                   )
                 }
               >
-                <div className="flex items-center justify-center gap-2">
+                <div className="flex items-center justify-center gap-1.5">
                   <div
-                    className="w-3 h-3 rounded-full"
+                    className="w-2 h-2 rounded-full"
                     style={{ backgroundColor: member.color }}
                   />
                   <span>{member.name}</span>
                   <div className="flex items-center gap-1">
                     {activeCount > 0 && (
                       <div
-                        className="flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-semibold text-white"
+                        className="flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full text-[10px] font-semibold text-white"
                         style={{ backgroundColor: member.color }}
                       >
                         {activeCount}
                       </div>
                     )}
                     {overdueCount > 0 && (
-                      <div className="flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-xs font-semibold text-white">
+                      <div className="flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-[10px] font-semibold text-white">
                         {overdueCount}
                       </div>
                     )}
@@ -398,7 +393,7 @@ export default function Chores() {
             );
           })}
         </Tab.List>
-        <Tab.Panels className="flex-1 overflow-y-auto">
+        <Tab.Panels className="flex-1 overflow-y-auto min-h-0">
           {familyMembers.map((member) => {
             const memberChores = getChoresForMember(member.id);
             return (

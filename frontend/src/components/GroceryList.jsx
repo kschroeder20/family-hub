@@ -41,7 +41,7 @@ function SortableGroceryItem({ item, onToggle, onDelete }) {
       ref={setNodeRef}
       style={style}
       className={clsx(
-        'flex items-center justify-between p-3 rounded-lg transition-all',
+        'flex items-center justify-between p-2 rounded-lg transition-all',
         item.purchased
           ? 'bg-green-50 border border-green-200'
           : 'bg-white border border-[#e3e8ee] hover:border-[#d1d9e0] hover:shadow-md'
@@ -170,9 +170,9 @@ export default function GroceryList() {
   };
 
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-[#e3e8ee] p-6 h-full flex flex-col">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold text-[#0a2540]">Grocery List</h2>
+    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-[#e3e8ee] p-3 md:p-4 h-full flex flex-col overflow-hidden">
+      <div className="flex justify-between items-center mb-3 flex-shrink-0">
+        <h2 className="text-xl font-semibold text-[#0a2540]">Grocery List</h2>
         <button
           onClick={() => setIsAddingItem(!isAddingItem)}
           className="bg-[#15be53] hover:bg-[#13ab4a] text-white p-2.5 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
@@ -215,7 +215,7 @@ export default function GroceryList() {
         </div>
       )}
 
-      <div className="flex-1 overflow-y-auto space-y-4">
+      <div className="flex-1 overflow-y-auto space-y-3 min-h-0">
         {/* Unpurchased Items */}
         <div>
           <h3 className="text-sm font-semibold text-[#727f96] mb-3 uppercase tracking-wider">To Buy</h3>
