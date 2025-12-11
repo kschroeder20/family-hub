@@ -6,6 +6,20 @@ export default function Weather() {
   const COUNTRY_CODE = 'US';
   const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY || '0add46028dbeda42f789114aeeaeb091';
 
+  // First, get the coordinates from zip code
+  const { data: geoData } = useQuery({
+    queryKey: ['geo', ZIP_CODE],
+    queryFn: async () => {
+      const response = await axios.get(
+        `https://api.openweathermap.org/geo/1.0/zip?zip=${ZIP_CODE},${COUNTRY_CODE}&appid=${API_KEY}`
+      );
+      return response.data;
+    },
+    retry: 1,
+    staleTime: 86400000, // Cache for 24 hours
+  });
+
+  // Then get current weather
   const { data: weatherData, isLoading, isError } = useQuery({
     queryKey: ['weather', ZIP_CODE],
     queryFn: async () => {
@@ -14,6 +28,21 @@ export default function Weather() {
       );
       return response.data;
     },
+    refetchInterval: 600000, // Refetch every 10 minutes
+    retry: 1,
+  });
+
+  // Get daily forecast for high/low temps
+  const { data: forecastData } = useQuery({
+    queryKey: ['forecast', geoData?.lat, geoData?.lon],
+    queryFn: async () => {
+      if (!geoData?.lat || !geoData?.lon) return null;
+      const response = await axios.get(
+        `https://api.openweathermap.org/data/2.5/forecast?lat=${geoData.lat}&lon=${geoData.lon}&appid=${API_KEY}&units=imperial`
+      );
+      return response.data;
+    },
+    enabled: !!geoData?.lat && !!geoData?.lon,
     refetchInterval: 600000, // Refetch every 10 minutes
     retry: 1,
   });
@@ -104,6 +133,35 @@ export default function Weather() {
   const weatherIcon = weatherData.weather[0]?.icon || '01d';
   const location = weatherData.name || 'Your Area';
 
+  // Calculate today's high and low from forecast data
+  let todayHigh = null;
+  let todayLow = null;
+  let feelsLikeHigh = null;
+  let feelsLikeLow = null;
+
+  if (forecastData?.list) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    // Filter forecast entries for today
+    const todayForecasts = forecastData.list.filter(item => {
+      const forecastDate = new Date(item.dt * 1000);
+      return forecastDate >= today && forecastDate < tomorrow;
+    });
+
+    if (todayForecasts.length > 0) {
+      const temps = todayForecasts.map(item => item.main.temp);
+      const feelsLikeTemps = todayForecasts.map(item => item.main.feels_like);
+
+      todayHigh = Math.round(Math.max(...temps));
+      todayLow = Math.round(Math.min(...temps));
+      feelsLikeHigh = Math.round(Math.max(...feelsLikeTemps));
+      feelsLikeLow = Math.round(Math.min(...feelsLikeTemps));
+    }
+  }
+
   const style = getWeatherStyle(weatherMain, weatherId);
 
   return (
@@ -156,12 +214,32 @@ export default function Weather() {
               <span className="text-2xl font-bold text-white drop-shadow-md">{temp}°</span>
             </div>
             <p className="text-[10px] text-white/90 capitalize">{description}</p>
+            {todayHigh !== null && todayLow !== null && (
+              <div className="flex items-center gap-2 mt-0.5">
+                <p className="text-[9px] text-white/80">
+                  H: {todayHigh}°
+                </p>
+                <p className="text-[9px] text-white/80">
+                  L: {todayLow}°
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
         <div className="text-right">
           <p className="text-[9px] text-white/80 uppercase tracking-wide">Feels</p>
           <p className="text-xl font-bold text-white drop-shadow-md">{feelsLike}°</p>
+          {feelsLikeHigh !== null && feelsLikeLow !== null && (
+            <div className="flex items-center gap-2 mt-0.5 justify-end">
+              <p className="text-[9px] text-white/80">
+                H: {feelsLikeHigh}°
+              </p>
+              <p className="text-[9px] text-white/80">
+                L: {feelsLikeLow}°
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
