@@ -29,5 +29,7 @@ export const deleteGroceryItem = (id) => api.delete(`/grocery_items/${id}`);
 // Google Calendar
 export const syncGoogleCalendar = () => api.get('/google_calendar/sync');
 export const createGoogleCalendarEvent = (event) => api.post('/google_calendar/create', event);
+export const updateGoogleCalendarEvent = (id, event) => api.patch(`/google_calendar/events/${id}`, event);
+export const deleteGoogleCalendarEvent = (id) => api.delete(`/google_calendar/events/${id}`);
 
 export default api;

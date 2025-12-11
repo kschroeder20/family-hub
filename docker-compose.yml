@@ -34,6 +34,7 @@ services:
       DATABASE_NAME: ${DATABASE_NAME:-family_hub_development}
       RAILS_ENV: ${RAILS_ENV:-development}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      API_KEY: ${API_KEY}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       GOOGLE_CALENDAR_ID: ${GOOGLE_CALENDAR_ID}
@@ -56,6 +57,7 @@ services:
       - "5173:5173"
     environment:
       VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
+      VITE_API_KEY: ${VITE_API_KEY}
     depends_on:
       - backend
     stdin_open: true

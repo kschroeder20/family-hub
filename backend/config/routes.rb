@@ -14,6 +14,8 @@ Rails.application.routes.draw do
 
       get 'google_calendar/sync', to: 'google_calendar#sync'
       post 'google_calendar/create', to: 'google_calendar#create'
+      patch 'google_calendar/events/:id', to: 'google_calendar#update'
+      delete 'google_calendar/events/:id', to: 'google_calendar#destroy'
       get 'google_calendar/authorize', to: 'google_calendar#authorize'
       get 'google_calendar/callback', to: 'google_calendar#callback'
     end

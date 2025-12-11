@@ -1,14 +1,17 @@
 import { useState, useRef, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
-import { syncGoogleCalendar } from '../services/api';
+import { syncGoogleCalendar, createGoogleCalendarEvent, updateGoogleCalendarEvent, deleteGoogleCalendarEvent } from '../services/api';
+import EventFormModal from './EventFormModal';
+import DeleteConfirmationModal from './DeleteConfirmationModal';
 
 export default function CalendarComponent() {
   const calendarRef = useRef(null);
+  const queryClient = useQueryClient();
   const [events, setEvents] = useState([]);
   const [todaysEvents, setTodaysEvents] = useState([]);
   const [isMobile, setIsMobile] = useState(() => {
@@ -18,6 +21,14 @@ export default function CalendarComponent() {
     }
     return false;
   });
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
+
+  // Modal states
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(null);
 
   // Fetch Google Calendar events
   const { data: googleCalendarData, isLoading, isError, error, refetch } = useQuery({
@@ -43,6 +54,59 @@ export default function CalendarComponent() {
       window.open(googleCalendarData.authorization_url, '_blank', 'width=600,height=700');
       // Refetch after a few seconds to check if auth was successful
       setTimeout(() => refetch(), 5000);
+    }
+  };
+
+  // Create event mutation
+  const createEventMutation = useMutation({
+    mutationFn: createGoogleCalendarEvent,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['googleCalendar']);
+    },
+    onError: (error) => {
+      console.error('Failed to create event:', error);
+      alert('Failed to create event. Please try again.');
+    }
+  });
+
+  // Update event mutation
+  const updateEventMutation = useMutation({
+    mutationFn: ({ id, ...eventData }) => updateGoogleCalendarEvent(id, eventData),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['googleCalendar']);
+    },
+    onError: (error) => {
+      console.error('Failed to update event:', error);
+      alert('Failed to update event. Please try again.');
+    }
+  });
+
+  // Delete event mutation
+  const deleteEventMutation = useMutation({
+    mutationFn: deleteGoogleCalendarEvent,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['googleCalendar']);
+    },
+    onError: (error) => {
+      console.error('Failed to delete event:', error);
+      alert('Failed to delete event. Please try again.');
+    }
+  });
+
+  // Handle creating event
+  const handleCreateEvent = async (eventData) => {
+    await createEventMutation.mutateAsync(eventData);
+  };
+
+  // Handle updating event
+  const handleUpdateEvent = async (eventData) => {
+    await updateEventMutation.mutateAsync(eventData);
+  };
+
+  // Handle deleting event
+  const handleDeleteEvent = async () => {
+    if (selectedEvent?.id) {
+      await deleteEventMutation.mutateAsync(selectedEvent.id);
     }
   };
 
@@ -111,13 +175,30 @@ export default function CalendarComponent() {
   }, [googleCalendarData]);
 
   const handleEventClick = (clickInfo) => {
-    // Display event details (read-only)
-    alert(`Event: ${clickInfo.event.title}\nStart: ${clickInfo.event.start?.toLocaleString() || 'N/A'}\nEnd: ${clickInfo.event.end?.toLocaleString() || 'N/A'}`);
+    // Open edit modal with event details
+    const event = {
+      id: clickInfo.event.id,
+      summary: clickInfo.event.title,
+      description: clickInfo.event.extendedProps?.description,
+      start: clickInfo.event.start,
+      end: clickInfo.event.end
+    };
+    setSelectedEvent(event);
+    setIsEditModalOpen(true);
   };
 
-  const getMonthDecoration = () => {
-    const currentMonth = new Date().getMonth(); // 0-11
+  const handleDateClick = (dateInfo) => {
+    // Open create modal with selected date
+    setSelectedDate(dateInfo.date);
+    setIsCreateModalOpen(true);
+  };
 
+  const handleEventDelete = () => {
+    setIsEditModalOpen(false);
+    setIsDeleteModalOpen(true);
+  };
+
+  const getMonthDecoration = (month) => {
     const decorations = {
       0: { // January - New Year
         emoji: '🎉',
@@ -181,10 +262,10 @@ export default function CalendarComponent() {
       }
     };
 
-    return decorations[currentMonth];
+    return decorations[month];
   };
 
-  const decoration = getMonthDecoration();
+  const decoration = getMonthDecoration(currentMonth);
 
   return (
     <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-[#e3e8ee] p-3 md:p-4 lg:h-full flex flex-col overflow-hidden">
@@ -231,8 +312,9 @@ export default function CalendarComponent() {
           }}
           events={events}
           eventClick={handleEventClick}
+          dateClick={handleDateClick}
           editable={false}
-          selectable={false}
+          selectable={true}
           dayMaxEvents={true}
           weekends={true}
           height="100%"
@@ -253,20 +335,26 @@ export default function CalendarComponent() {
             }
           }}
           datesSet={(info) => {
+            // Update current month when calendar view changes
+            const viewDate = info.view.currentStart;
+            const month = viewDate.getMonth();
+            setCurrentMonth(month);
+
             // Update emoji when month changes
+            const newDecoration = getMonthDecoration(month);
             const titleElement = document.querySelector('.fc-toolbar-title');
             if (titleElement) {
               const existingEmoji = titleElement.querySelector('.seasonal-emoji');
               if (existingEmoji) {
-                existingEmoji.textContent = ` ${decoration.emoji}`;
+                existingEmoji.textContent = ` ${newDecoration.emoji}`;
                 existingEmoji.style.fontFamily = '"Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif';
               } else {
                 // Add emoji if missing
                 const emojiSpan = document.createElement('span');
                 emojiSpan.className = 'seasonal-emoji';
-                emojiSpan.textContent = ` ${decoration.emoji}`;
+                emojiSpan.textContent = ` ${newDecoration.emoji}`;
                 emojiSpan.style.marginLeft = '8px';
-                emojiSpan.style.fontFamily = '"Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif';
+                emojiSpan.style.fontFamily = '"Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif';
                 titleElement.appendChild(emojiSpan);
               }
             }
@@ -512,6 +600,40 @@ export default function CalendarComponent() {
           color: #0a2540;
         }
       `}</style>
+
+      {/* Event Form Modal for Creating */}
+      <EventFormModal
+        isOpen={isCreateModalOpen}
+        onClose={() => {
+          setIsCreateModalOpen(false);
+          setSelectedDate(null);
+        }}
+        onSubmit={handleCreateEvent}
+        initialDate={selectedDate}
+      />
+
+      {/* Event Form Modal for Editing */}
+      <EventFormModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedEvent(null);
+        }}
+        onSubmit={handleUpdateEvent}
+        onDelete={handleEventDelete}
+        event={selectedEvent}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setSelectedEvent(null);
+        }}
+        onConfirm={handleDeleteEvent}
+        event={selectedEvent}
+      />
     </div>
   );
 }

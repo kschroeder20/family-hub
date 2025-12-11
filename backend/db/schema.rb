@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_12_06_000001) do
+ActiveRecord::Schema[7.1].define(version: 2025_12_10_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -22,7 +22,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_06_000001) do
     t.boolean "completed", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "completed_at"
     t.index ["completed"], name: "index_chores_on_completed"
+    t.index ["completed_at"], name: "index_chores_on_completed_at"
     t.index ["due_date"], name: "index_chores_on_due_date"
     t.index ["family_member_id"], name: "index_chores_on_family_member_id"
   end
@@ -48,7 +50,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_06_000001) do
     t.boolean "purchased", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "purchased_at"
     t.index ["purchased"], name: "index_grocery_items_on_purchased"
+    t.index ["purchased_at"], name: "index_grocery_items_on_purchased_at"
   end
 
   add_foreign_key "chores", "family_members"

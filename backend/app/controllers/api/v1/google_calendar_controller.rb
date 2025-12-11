@@ -4,7 +4,7 @@ require 'googleauth'
 module Api
   module V1
     class GoogleCalendarController < ApplicationController
-      before_action :init_service, only: [:sync, :create]
+      before_action :init_service, only: [:sync, :create, :update, :destroy]
 
       def sync
         if @service.nil? || !@service.authorized?
@@ -54,9 +54,50 @@ module Api
             id: event.id,
             summary: event.summary,
             start: event.start.date_time,
-            end: event.end.date_time
+            end: event.end.date_time,
+            description: event.description
           }
         }, status: :created
+      rescue => e
+        render json: {
+          success: false,
+          error: e.message
+        }, status: :unprocessable_entity
+      end
+
+      def update
+        event = @service.update_event(
+          params[:id],
+          summary: params[:summary],
+          start_time: params[:start_time] ? Time.parse(params[:start_time]) : nil,
+          end_time: params[:end_time] ? Time.parse(params[:end_time]) : nil,
+          description: params[:description]
+        )
+
+        render json: {
+          success: true,
+          event: {
+            id: event.id,
+            summary: event.summary,
+            start: event.start.date_time || event.start.date,
+            end: event.end.date_time || event.end.date,
+            description: event.description
+          }
+        }
+      rescue => e
+        render json: {
+          success: false,
+          error: e.message
+        }, status: :unprocessable_entity
+      end
+
+      def destroy
+        @service.delete_event(params[:id])
+
+        render json: {
+          success: true,
+          message: 'Event deleted successfully'
+        }
       rescue => e
         render json: {
           success: false,
