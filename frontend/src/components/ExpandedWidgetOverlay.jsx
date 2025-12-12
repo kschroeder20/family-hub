@@ -38,7 +38,7 @@ export default function ExpandedWidgetOverlay({ children }) {
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn"
       onClick={handleBackdropClick}
     >
-      <div className="relative w-full max-w-6xl max-h-[90vh] animate-scaleIn">
+      <div className="relative w-full max-w-6xl h-[85vh] animate-scaleIn">
         {/* Close button */}
         <button
           onClick={collapseWidget}
