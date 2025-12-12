@@ -318,36 +318,36 @@ export default function Chores() {
 
       {/* Upcoming Chores Section */}
       {getUpcomingChores().length > 0 && (
-        <div className="mb-3 p-3 bg-gradient-to-br from-[#f6f9fc] to-[#e8ecf1] rounded-lg border border-[#e3e8ee] flex-shrink-0">
-          <h3 className="text-xs font-semibold text-[#0a2540] mb-2 flex items-center gap-2">
-            <span className="inline-block w-2 h-2 bg-[#635bff] rounded-full"></span>
+        <div className="mb-3 p-4 bg-gradient-to-br from-[#f6f9fc] to-[#e8ecf1] rounded-lg border border-[#e3e8ee] flex-shrink-0">
+          <h3 className="text-sm font-semibold text-[#0a2540] mb-3 flex items-center gap-2">
+            <span className="inline-block w-2.5 h-2.5 bg-[#635bff] rounded-full"></span>
             Upcoming Chores (Next 7 Days)
           </h3>
-          <div className="space-y-1.5 max-h-24 overflow-y-auto">
+          <div className="space-y-2 max-h-40 overflow-y-auto">
             {getUpcomingChores().map((chore) => (
               <div
                 key={chore.id}
-                className="flex items-center gap-2 p-2 bg-white rounded-lg border border-[#e3e8ee] hover:shadow-sm transition-all"
+                className="flex items-center gap-3 p-3 bg-white rounded-lg border border-[#e3e8ee] hover:shadow-sm transition-all"
               >
                 <div
-                  className="w-2 h-2 rounded-full flex-shrink-0"
+                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                   style={{ backgroundColor: chore.family_member.color }}
                 />
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-xs font-medium text-[#0a2540] truncate">
+                  <h4 className="text-sm font-medium text-[#0a2540] truncate">
                     {chore.title}
                   </h4>
-                  <p className="text-[10px] text-[#727f96]">
+                  <p className="text-xs text-[#727f96]">
                     {chore.family_member.name}
                   </p>
                 </div>
                 <div className="text-right flex-shrink-0">
                   {chore.due_date ? (
-                    <p className="text-[10px] font-medium text-[#635bff]">
+                    <p className="text-xs font-medium text-[#635bff]">
                       {format(parseISO(chore.due_date), 'MMM d')}
                     </p>
                   ) : (
-                    <p className="text-[10px] text-[#aab4c1] italic">
+                    <p className="text-xs text-[#aab4c1] italic">
                       No date
                     </p>
                   )}
