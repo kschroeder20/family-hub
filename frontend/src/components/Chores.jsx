@@ -287,12 +287,18 @@ export default function Chores() {
             className="w-full p-2 mb-2 bg-white border border-[#e3e8ee] rounded-lg text-[#0a2540] placeholder-[#aab4c1] focus:ring-2 focus:ring-[#635bff] focus:border-transparent"
             rows="2"
           />
-          <input
-            type="date"
-            value={newChore.due_date}
-            onChange={(e) => setNewChore({ ...newChore, due_date: e.target.value })}
-            className="w-full p-2 mb-2 bg-white border border-[#e3e8ee] rounded-lg text-[#0a2540] focus:ring-2 focus:ring-[#635bff] focus:border-transparent"
-          />
+          <div className="mb-2">
+            <label htmlFor="due-date" className="block text-xs font-medium text-[#727f96] mb-1">
+              Due Date (optional)
+            </label>
+            <input
+              id="due-date"
+              type="date"
+              value={newChore.due_date}
+              onChange={(e) => setNewChore({ ...newChore, due_date: e.target.value })}
+              className="w-full p-2 bg-white border border-[#e3e8ee] rounded-lg text-[#0a2540] focus:ring-2 focus:ring-[#635bff] focus:border-transparent"
+            />
+          </div>
           <div className="flex gap-2">
             <button
               onClick={handleAddChore}
