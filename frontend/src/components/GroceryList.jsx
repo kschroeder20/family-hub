@@ -109,6 +109,7 @@ export default function GroceryList() {
       const response = await getGroceryItems();
       return response.data;
     },
+    refetchInterval: 600000, // Refetch every 10 minutes
   });
 
   const createItemMutation = useMutation({
@@ -170,7 +171,7 @@ export default function GroceryList() {
   };
 
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-[#e3e8ee] p-3 md:p-4 lg:h-full flex flex-col overflow-hidden">
+    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-[#e3e8ee] p-3 md:p-4 lg:h-full flex flex-col overflow-y-auto lg:overflow-hidden">
       <div className="flex justify-between items-center mb-3 flex-shrink-0">
         <h2 className="text-xl font-semibold text-[#0a2540]">Grocery List</h2>
         <button
