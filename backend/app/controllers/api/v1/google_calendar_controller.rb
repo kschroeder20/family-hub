@@ -34,7 +34,8 @@ module Api
           }
         }
       rescue Google::Apis::AuthorizationError, Google::Apis::ClientError => e
-        if e.message.include?('invalid_grant') || e.message.include?('expired') || e.message.include?('revoked')
+        error_msg = e.message.downcase
+        if error_msg.include?('invalid_grant') || error_msg.include?('expired') || error_msg.include?('revoked') || error_msg.include?('authorization failed')
           # Clear invalid token
           GoogleCredential.delete('default')
           # Generate new auth URL
@@ -74,7 +75,8 @@ module Api
           }
         }, status: :created
       rescue Google::Apis::AuthorizationError, Google::Apis::ClientError => e
-        if e.message.include?('invalid_grant') || e.message.include?('expired') || e.message.include?('revoked')
+        error_msg = e.message.downcase
+        if error_msg.include?('invalid_grant') || error_msg.include?('expired') || error_msg.include?('revoked') || error_msg.include?('authorization failed')
           # Clear invalid token
           GoogleCredential.delete('default')
           # Generate new auth URL
@@ -115,7 +117,8 @@ module Api
           }
         }
       rescue Google::Apis::AuthorizationError, Google::Apis::ClientError => e
-        if e.message.include?('invalid_grant') || e.message.include?('expired') || e.message.include?('revoked')
+        error_msg = e.message.downcase
+        if error_msg.include?('invalid_grant') || error_msg.include?('expired') || error_msg.include?('revoked') || error_msg.include?('authorization failed')
           # Clear invalid token
           GoogleCredential.delete('default')
           # Generate new auth URL
@@ -144,7 +147,8 @@ module Api
           message: 'Event deleted successfully'
         }
       rescue Google::Apis::AuthorizationError, Google::Apis::ClientError => e
-        if e.message.include?('invalid_grant') || e.message.include?('expired') || e.message.include?('revoked')
+        error_msg = e.message.downcase
+        if error_msg.include?('invalid_grant') || error_msg.include?('expired') || error_msg.include?('revoked') || error_msg.include?('authorization failed')
           # Clear invalid token
           GoogleCredential.delete('default')
           # Generate new auth URL
