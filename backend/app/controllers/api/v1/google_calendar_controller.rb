@@ -33,6 +33,21 @@ module Api
             }
           }
         }
+      rescue Google::Apis::AuthorizationError, Google::Apis::ClientError => e
+        if e.message.include?('invalid_grant') || e.message.include?('expired') || e.message.include?('revoked')
+          # Clear invalid token
+          GoogleCredential.delete('default')
+          # Generate new auth URL
+          auth_url = generate_auth_url
+          render json: {
+            success: false,
+            needs_auth: true,
+            authorization_url: auth_url,
+            error: 'Your Google Calendar connection has expired. Please reconnect.'
+          }, status: :unauthorized
+        else
+          render json: { success: false, error: e.message }, status: :unprocessable_entity
+        end
       rescue => e
         render json: {
           success: false,
@@ -58,6 +73,21 @@ module Api
             description: event.description
           }
         }, status: :created
+      rescue Google::Apis::AuthorizationError, Google::Apis::ClientError => e
+        if e.message.include?('invalid_grant') || e.message.include?('expired') || e.message.include?('revoked')
+          # Clear invalid token
+          GoogleCredential.delete('default')
+          # Generate new auth URL
+          auth_url = generate_auth_url
+          render json: {
+            success: false,
+            needs_auth: true,
+            authorization_url: auth_url,
+            error: 'Your Google Calendar connection has expired. Please reconnect.'
+          }, status: :unauthorized
+        else
+          render json: { success: false, error: e.message }, status: :unprocessable_entity
+        end
       rescue => e
         render json: {
           success: false,
@@ -84,6 +114,21 @@ module Api
             description: event.description
           }
         }
+      rescue Google::Apis::AuthorizationError, Google::Apis::ClientError => e
+        if e.message.include?('invalid_grant') || e.message.include?('expired') || e.message.include?('revoked')
+          # Clear invalid token
+          GoogleCredential.delete('default')
+          # Generate new auth URL
+          auth_url = generate_auth_url
+          render json: {
+            success: false,
+            needs_auth: true,
+            authorization_url: auth_url,
+            error: 'Your Google Calendar connection has expired. Please reconnect.'
+          }, status: :unauthorized
+        else
+          render json: { success: false, error: e.message }, status: :unprocessable_entity
+        end
       rescue => e
         render json: {
           success: false,
@@ -98,6 +143,21 @@ module Api
           success: true,
           message: 'Event deleted successfully'
         }
+      rescue Google::Apis::AuthorizationError, Google::Apis::ClientError => e
+        if e.message.include?('invalid_grant') || e.message.include?('expired') || e.message.include?('revoked')
+          # Clear invalid token
+          GoogleCredential.delete('default')
+          # Generate new auth URL
+          auth_url = generate_auth_url
+          render json: {
+            success: false,
+            needs_auth: true,
+            authorization_url: auth_url,
+            error: 'Your Google Calendar connection has expired. Please reconnect.'
+          }, status: :unauthorized
+        else
+          render json: { success: false, error: e.message }, status: :unprocessable_entity
+        end
       rescue => e
         render json: {
           success: false,
@@ -159,6 +219,14 @@ module Api
           Rails.logger.error e.backtrace.join("\n")
           render html: "<h1>❌ Error</h1><p>#{e.message}</p>", status: :internal_server_error
         end
+      end
+
+      def clear_credentials
+        GoogleCredential.delete('default')
+        render json: { success: true, message: 'Credentials cleared' }
+      rescue => e
+        Rails.logger.error "Failed to clear credentials: #{e.message}"
+        render json: { success: false, error: e.message }, status: :unprocessable_entity
       end
 
       private

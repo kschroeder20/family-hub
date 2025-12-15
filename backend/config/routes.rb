@@ -18,6 +18,7 @@ Rails.application.routes.draw do
       delete 'google_calendar/events/:id', to: 'google_calendar#destroy'
       get 'google_calendar/authorize', to: 'google_calendar#authorize'
       get 'google_calendar/callback', to: 'google_calendar#callback'
+      delete 'google_calendar/credentials', to: 'google_calendar#clear_credentials'
     end
   end
 

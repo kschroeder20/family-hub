@@ -5,7 +5,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
-import { syncGoogleCalendar, createGoogleCalendarEvent, updateGoogleCalendarEvent, deleteGoogleCalendarEvent } from '../services/api';
+import { syncGoogleCalendar, createGoogleCalendarEvent, updateGoogleCalendarEvent, deleteGoogleCalendarEvent, clearGoogleCredentials } from '../services/api';
 import EventFormModal from './EventFormModal';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
 
@@ -22,6 +22,7 @@ export default function CalendarComponent() {
     return false;
   });
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
+  const [authError, setAuthError] = useState(null);
 
   // Modal states
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -36,8 +37,15 @@ export default function CalendarComponent() {
     queryFn: async () => {
       try {
         const response = await syncGoogleCalendar();
+        setAuthError(null); // Clear any previous auth errors
         return response.data;
       } catch (err) {
+        const errorData = err.response?.data;
+        if (errorData?.needs_auth) {
+          setAuthError(errorData);
+          // Return the error data to prevent query from being in error state
+          return errorData;
+        }
         // If it's a 401 error with auth details, return the error data
         if (err.response?.status === 401 && err.response?.data) {
           return err.response.data;
@@ -57,6 +65,21 @@ export default function CalendarComponent() {
     }
   };
 
+  const handleReconnect = async () => {
+    try {
+      // Clear invalid credentials on backend
+      await clearGoogleCredentials();
+      // Refetch to get new auth URL
+      const result = await refetch();
+      if (result.data?.authorization_url) {
+        window.open(result.data.authorization_url, '_blank', 'width=600,height=700');
+        setTimeout(() => refetch(), 5000);
+      }
+    } catch (err) {
+      console.error('Failed to initiate reconnect:', err);
+    }
+  };
+
   // Create event mutation
   const createEventMutation = useMutation({
     mutationFn: createGoogleCalendarEvent,
@@ -64,8 +87,13 @@ export default function CalendarComponent() {
       queryClient.invalidateQueries(['googleCalendar']);
     },
     onError: (error) => {
-      console.error('Failed to create event:', error);
-      alert('Failed to create event. Please try again.');
+      const errorData = error.response?.data;
+      if (errorData?.needs_auth) {
+        setAuthError(errorData);
+      } else {
+        console.error('Failed to create event:', error);
+        alert('Failed to create event. Please try again.');
+      }
     }
   });
 
@@ -76,8 +104,13 @@ export default function CalendarComponent() {
       queryClient.invalidateQueries(['googleCalendar']);
     },
     onError: (error) => {
-      console.error('Failed to update event:', error);
-      alert('Failed to update event. Please try again.');
+      const errorData = error.response?.data;
+      if (errorData?.needs_auth) {
+        setAuthError(errorData);
+      } else {
+        console.error('Failed to update event:', error);
+        alert('Failed to update event. Please try again.');
+      }
     }
   });
 
@@ -88,8 +121,13 @@ export default function CalendarComponent() {
       queryClient.invalidateQueries(['googleCalendar']);
     },
     onError: (error) => {
-      console.error('Failed to delete event:', error);
-      alert('Failed to delete event. Please try again.');
+      const errorData = error.response?.data;
+      if (errorData?.needs_auth) {
+        setAuthError(errorData);
+      } else {
+        console.error('Failed to delete event:', error);
+        alert('Failed to delete event. Please try again.');
+      }
     }
   });
 
@@ -269,6 +307,21 @@ export default function CalendarComponent() {
 
   return (
     <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-[#e3e8ee] p-3 md:p-4 lg:h-full flex flex-col overflow-hidden">
+      {/* Auth Error Banner */}
+      {(googleCalendarData?.needs_auth || authError?.needs_auth) && (
+        <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800 mb-2">
+            {authError?.error || 'Your Google Calendar needs to be connected.'}
+          </p>
+          <button
+            onClick={authError ? handleReconnect : handleAuthorize}
+            className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          >
+            {authError ? 'Reconnect to Google Calendar' : 'Connect Google Calendar'}
+          </button>
+        </div>
+      )}
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3 sm:gap-0">
         <div className="flex items-center gap-2">
           {isLoading ? (

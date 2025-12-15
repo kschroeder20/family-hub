@@ -36,7 +36,7 @@ class GoogleCalendarService
 
   def list_events(time_min = Time.now, time_max = 1.month.from_now)
     return [] unless authorized?
-    
+
     result = @service.list_events(
       ENV['GOOGLE_CALENDAR_ID'],
       max_results: 100,
@@ -46,9 +46,6 @@ class GoogleCalendarService
       time_max: time_max.iso8601
     )
     result.items
-  rescue Google::Apis::ClientError => e
-    Rails.logger.error "Google Calendar API Error: #{e.message}"
-    []
   end
 
   def create_event(summary, start_time, end_time, description = nil)
