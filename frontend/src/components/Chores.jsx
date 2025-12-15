@@ -4,6 +4,7 @@ import { Tab } from '@headlessui/react';
 import { PlusIcon, TrashIcon, CheckIcon, Bars3Icon } from '@heroicons/react/24/outline';
 import { format, isPast, parseISO, addDays, isWithinInterval, startOfDay } from 'date-fns';
 import { getChores, getFamilyMembers, createChore, updateChore, deleteChore } from '../services/api';
+import { useWidgetExpand } from '../contexts/WidgetExpandContext';
 import clsx from 'clsx';
 import {
   DndContext,
@@ -118,6 +119,7 @@ function SortableChoreItem({ chore, onToggle, onDelete, isOverdue }) {
 
 export default function Chores() {
   const queryClient = useQueryClient();
+  const { expandedWidget, collapseWidget } = useWidgetExpand();
   const [selectedMemberIndex, setSelectedMemberIndex] = useState(0);
   const [isAddingChore, setIsAddingChore] = useState(false);
   const [newChore, setNewChore] = useState({
@@ -126,6 +128,8 @@ export default function Chores() {
     due_date: '',
   });
   const [choreOrder, setChoreOrder] = useState({});
+
+  const isExpanded = expandedWidget === 'chores';
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -263,12 +267,22 @@ export default function Chores() {
     <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-[#e3e8ee] p-3 md:p-4 lg:h-full flex flex-col overflow-y-auto lg:overflow-hidden">
       <div className="flex justify-between items-center mb-3 flex-shrink-0">
         <h2 className="text-xl font-semibold text-[#0a2540]">Chores</h2>
-        <button
-          onClick={() => setIsAddingChore(!isAddingChore)}
-          className="bg-[#635bff] hover:bg-[#5650e6] text-white p-2.5 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
-        >
-          <PlusIcon className="h-5 w-5" />
-        </button>
+        <div className="flex items-center gap-2">
+          {isExpanded && (
+            <button
+              onClick={collapseWidget}
+              className="text-[#727f96] hover:text-[#0a2540] text-sm font-medium transition-colors"
+            >
+              Close
+            </button>
+          )}
+          <button
+            onClick={() => setIsAddingChore(!isAddingChore)}
+            className="bg-[#635bff] hover:bg-[#5650e6] text-white p-2.5 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
+          >
+            <PlusIcon className="h-5 w-5" />
+          </button>
+        </div>
       </div>
 
       {isAddingChore && (

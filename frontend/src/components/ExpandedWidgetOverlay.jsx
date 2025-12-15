@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useWidgetExpand } from '../contexts/WidgetExpandContext';
 
 export default function ExpandedWidgetOverlay({ children }) {
@@ -39,15 +38,6 @@ export default function ExpandedWidgetOverlay({ children }) {
       onClick={handleBackdropClick}
     >
       <div className="relative w-full max-w-6xl h-[85vh] animate-scaleIn">
-        {/* Close button - positioned inside on mobile, outside on desktop */}
-        <button
-          onClick={collapseWidget}
-          className="absolute top-2 left-2 md:-top-12 md:left-auto md:right-0 p-2 text-gray-600 md:text-white hover:text-gray-900 md:hover:text-gray-300 transition-colors z-10 bg-white md:bg-transparent rounded-full shadow-lg md:shadow-none"
-          aria-label="Close"
-        >
-          <XMarkIcon className="w-6 h-6 md:w-8 md:h-8" />
-        </button>
-
         {/* Expanded widget content */}
         <div className="w-full h-full overflow-auto rounded-2xl shadow-2xl">
           {children}

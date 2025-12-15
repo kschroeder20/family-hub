@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { PlusIcon, TrashIcon, CheckIcon, Bars3Icon } from '@heroicons/react/24/outline';
 import { getGroceryItems, createGroceryItem, updateGroceryItem, deleteGroceryItem } from '../services/api';
+import { useWidgetExpand } from '../contexts/WidgetExpandContext';
 import clsx from 'clsx';
 import {
   DndContext,
@@ -92,9 +93,12 @@ function SortableGroceryItem({ item, onToggle, onDelete }) {
 
 export default function GroceryList() {
   const queryClient = useQueryClient();
+  const { expandedWidget, collapseWidget } = useWidgetExpand();
   const [isAddingItem, setIsAddingItem] = useState(false);
   const [newItem, setNewItem] = useState({ name: '', quantity: 1 });
   const [itemOrder, setItemOrder] = useState([]);
+
+  const isExpanded = expandedWidget === 'grocery';
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -174,12 +178,22 @@ export default function GroceryList() {
     <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-[#e3e8ee] p-3 md:p-4 lg:h-full flex flex-col overflow-y-auto lg:overflow-hidden">
       <div className="flex justify-between items-center mb-3 flex-shrink-0">
         <h2 className="text-xl font-semibold text-[#0a2540]">Grocery List</h2>
-        <button
-          onClick={() => setIsAddingItem(!isAddingItem)}
-          className="bg-[#15be53] hover:bg-[#13ab4a] text-white p-2.5 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
-        >
-          <PlusIcon className="h-5 w-5" />
-        </button>
+        <div className="flex items-center gap-2">
+          {isExpanded && (
+            <button
+              onClick={collapseWidget}
+              className="text-[#727f96] hover:text-[#0a2540] text-sm font-medium transition-colors"
+            >
+              Close
+            </button>
+          )}
+          <button
+            onClick={() => setIsAddingItem(!isAddingItem)}
+            className="bg-[#15be53] hover:bg-[#13ab4a] text-white p-2.5 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
+          >
+            <PlusIcon className="h-5 w-5" />
+          </button>
+        </div>
       </div>
 
       {isAddingItem && (
