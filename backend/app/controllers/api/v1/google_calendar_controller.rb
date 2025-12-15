@@ -50,10 +50,24 @@ module Api
           render json: { success: false, error: e.message }, status: :unprocessable_entity
         end
       rescue => e
-        render json: {
-          success: false,
-          error: e.message
-        }, status: :unprocessable_entity
+        error_msg = e.message.downcase
+        if error_msg.include?('invalid_grant') || error_msg.include?('expired') || error_msg.include?('revoked') || error_msg.include?('authorization failed')
+          # Clear invalid token
+          GoogleCredential.delete('default')
+          # Generate new auth URL
+          auth_url = generate_auth_url
+          render json: {
+            success: false,
+            needs_auth: true,
+            authorization_url: auth_url,
+            error: 'Your Google Calendar connection has expired. Please reconnect.'
+          }, status: :unauthorized
+        else
+          render json: {
+            success: false,
+            error: e.message
+          }, status: :unprocessable_entity
+        end
       end
 
       def create
@@ -91,10 +105,24 @@ module Api
           render json: { success: false, error: e.message }, status: :unprocessable_entity
         end
       rescue => e
-        render json: {
-          success: false,
-          error: e.message
-        }, status: :unprocessable_entity
+        error_msg = e.message.downcase
+        if error_msg.include?('invalid_grant') || error_msg.include?('expired') || error_msg.include?('revoked') || error_msg.include?('authorization failed')
+          # Clear invalid token
+          GoogleCredential.delete('default')
+          # Generate new auth URL
+          auth_url = generate_auth_url
+          render json: {
+            success: false,
+            needs_auth: true,
+            authorization_url: auth_url,
+            error: 'Your Google Calendar connection has expired. Please reconnect.'
+          }, status: :unauthorized
+        else
+          render json: {
+            success: false,
+            error: e.message
+          }, status: :unprocessable_entity
+        end
       end
 
       def update
@@ -133,10 +161,24 @@ module Api
           render json: { success: false, error: e.message }, status: :unprocessable_entity
         end
       rescue => e
-        render json: {
-          success: false,
-          error: e.message
-        }, status: :unprocessable_entity
+        error_msg = e.message.downcase
+        if error_msg.include?('invalid_grant') || error_msg.include?('expired') || error_msg.include?('revoked') || error_msg.include?('authorization failed')
+          # Clear invalid token
+          GoogleCredential.delete('default')
+          # Generate new auth URL
+          auth_url = generate_auth_url
+          render json: {
+            success: false,
+            needs_auth: true,
+            authorization_url: auth_url,
+            error: 'Your Google Calendar connection has expired. Please reconnect.'
+          }, status: :unauthorized
+        else
+          render json: {
+            success: false,
+            error: e.message
+          }, status: :unprocessable_entity
+        end
       end
 
       def destroy
@@ -163,10 +205,24 @@ module Api
           render json: { success: false, error: e.message }, status: :unprocessable_entity
         end
       rescue => e
-        render json: {
-          success: false,
-          error: e.message
-        }, status: :unprocessable_entity
+        error_msg = e.message.downcase
+        if error_msg.include?('invalid_grant') || error_msg.include?('expired') || error_msg.include?('revoked') || error_msg.include?('authorization failed')
+          # Clear invalid token
+          GoogleCredential.delete('default')
+          # Generate new auth URL
+          auth_url = generate_auth_url
+          render json: {
+            success: false,
+            needs_auth: true,
+            authorization_url: auth_url,
+            error: 'Your Google Calendar connection has expired. Please reconnect.'
+          }, status: :unauthorized
+        else
+          render json: {
+            success: false,
+            error: e.message
+          }, status: :unprocessable_entity
+        end
       end
 
       def authorize
