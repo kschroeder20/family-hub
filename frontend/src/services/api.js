@@ -20,6 +20,16 @@ export const createChore = (chore) => api.post('/chores', { chore });
 export const updateChore = (id, chore) => api.put(`/chores/${id}`, { chore });
 export const deleteChore = (id) => api.delete(`/chores/${id}`);
 
+// Recurring Chores
+export const getRecurringChores = () => api.get('/recurring_chores');
+export const createRecurringChore = (recurringChore) =>
+  api.post('/recurring_chores', { recurring_chore: recurringChore });
+export const updateRecurringChore = (id, recurringChore) =>
+  api.put(`/recurring_chores/${id}`, { recurring_chore: recurringChore });
+export const deleteRecurringChore = (id) => api.delete(`/recurring_chores/${id}`);
+export const completeRecurringChore = (id, completedById) =>
+  api.post(`/recurring_chores/${id}/complete`, { completed_by_id: completedById });
+
 // Grocery Items
 export const getGroceryItems = () => api.get('/grocery_items');
 export const createGroceryItem = (item) => api.post('/grocery_items', { grocery_item: item });

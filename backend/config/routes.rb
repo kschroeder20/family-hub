@@ -9,6 +9,11 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :family_members, only: [:index]
       resources :chores
+      resources :recurring_chores do
+        member do
+          post :complete
+        end
+      end
       resources :grocery_items
       resources :calendar_events, only: [:index, :create, :update, :destroy]
 

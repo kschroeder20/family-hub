@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { PlusIcon, TrashIcon, CheckIcon, Bars3Icon } from '@heroicons/react/24/outline';
 import { getGroceryItems, createGroceryItem, updateGroceryItem, deleteGroceryItem } from '../services/api';
 import { useWidgetExpand } from '../contexts/WidgetExpandContext';
+import GroceryFormModal from './GroceryFormModal';
 import clsx from 'clsx';
 import {
   DndContext,
@@ -93,9 +94,8 @@ function SortableGroceryItem({ item, onToggle, onDelete }) {
 
 export default function GroceryList() {
   const queryClient = useQueryClient();
-  const { expandedWidget, collapseWidget } = useWidgetExpand();
+  const { expandedWidget, expandWidget, collapseWidget } = useWidgetExpand();
   const [isAddingItem, setIsAddingItem] = useState(false);
-  const [newItem, setNewItem] = useState({ name: '', quantity: 1 });
   const [itemOrder, setItemOrder] = useState([]);
 
   const isExpanded = expandedWidget === 'grocery';
@@ -121,7 +121,6 @@ export default function GroceryList() {
     onSuccess: () => {
       queryClient.invalidateQueries(['groceryItems']);
       setIsAddingItem(false);
-      setNewItem({ name: '', quantity: 1 });
     },
   });
 
@@ -139,9 +138,8 @@ export default function GroceryList() {
     },
   });
 
-  const handleAddItem = () => {
-    if (!newItem.name.trim()) return;
-    createItemMutation.mutate(newItem);
+  const handleAddItem = (item) => {
+    createItemMutation.mutate(item);
   };
 
   const toggleItemPurchased = (item) => {
@@ -175,7 +173,7 @@ export default function GroceryList() {
   };
 
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-[#e3e8ee] p-3 md:p-4 lg:h-full flex flex-col overflow-y-auto lg:overflow-hidden">
+    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-[#e3e8ee] p-3 md:p-4 lg:h-full flex flex-col overflow-y-auto lg:overflow-hidden relative">
       <div className="flex justify-between items-center mb-3 flex-shrink-0">
         <h2 className="text-xl font-semibold text-[#0a2540]">Grocery List</h2>
         <div className="flex items-center gap-2">
@@ -188,7 +186,10 @@ export default function GroceryList() {
             </button>
           )}
           <button
-            onClick={() => setIsAddingItem(!isAddingItem)}
+            onClick={() => {
+              expandWidget('grocery');
+              setIsAddingItem(true);
+            }}
             className="bg-[#15be53] hover:bg-[#13ab4a] text-white p-2.5 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
           >
             <PlusIcon className="h-5 w-5" />
@@ -197,37 +198,10 @@ export default function GroceryList() {
       </div>
 
       {isAddingItem && (
-        <div className="mb-4 p-4 bg-[#f6f9fc] rounded-lg border border-[#e3e8ee]">
-          <input
-            type="text"
-            placeholder="Item name"
-            value={newItem.name}
-            onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-            className="w-full p-2 mb-2 bg-white border border-[#e3e8ee] rounded-lg text-[#0a2540] placeholder-[#aab4c1] focus:ring-2 focus:ring-[#15be53] focus:border-transparent"
-          />
-          <input
-            type="number"
-            placeholder="Quantity"
-            value={newItem.quantity}
-            onChange={(e) => setNewItem({ ...newItem, quantity: parseInt(e.target.value) || 1 })}
-            min="1"
-            className="w-full p-2 mb-2 bg-white border border-[#e3e8ee] rounded-lg text-[#0a2540] focus:ring-2 focus:ring-[#15be53] focus:border-transparent"
-          />
-          <div className="flex gap-2">
-            <button
-              onClick={handleAddItem}
-              className="flex-1 bg-[#15be53] hover:bg-[#13ab4a] text-white py-2 rounded-lg transition-colors font-medium"
-            >
-              Add
-            </button>
-            <button
-              onClick={() => setIsAddingItem(false)}
-              className="flex-1 bg-[#e3e8ee] hover:bg-[#d1d9e0] text-[#0a2540] py-2 rounded-lg transition-colors font-medium"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
+        <GroceryFormModal
+          onClose={() => setIsAddingItem(false)}
+          onSubmit={handleAddItem}
+        />
       )}
 
       <div className="flex-1 overflow-y-auto space-y-3 min-h-0">

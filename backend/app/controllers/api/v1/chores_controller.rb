@@ -6,18 +6,27 @@ module Api
 
       def index
         chores = Chore.includes(:family_member).order(due_date: :asc, created_at: :desc)
-        render json: chores.as_json(include: { family_member: { only: [:id, :name, :color] } })
+        render json: chores.as_json(
+          include: { family_member: { only: [:id, :name, :color] } },
+          methods: [:overdue_severity]
+        )
       end
 
       def show
-        render json: @chore.as_json(include: { family_member: { only: [:id, :name, :color] } })
+        render json: @chore.as_json(
+          include: { family_member: { only: [:id, :name, :color] } },
+          methods: [:overdue_severity]
+        )
       end
 
       def create
         chore = Chore.new(chore_params)
 
         if chore.save
-          render json: chore.as_json(include: { family_member: { only: [:id, :name, :color] } }), status: :created
+          render json: chore.as_json(
+            include: { family_member: { only: [:id, :name, :color] } },
+            methods: [:overdue_severity]
+          ), status: :created
         else
           render json: { errors: chore.errors.full_messages }, status: :unprocessable_entity
         end
@@ -25,7 +34,10 @@ module Api
 
       def update
         if @chore.update(chore_params)
-          render json: @chore.as_json(include: { family_member: { only: [:id, :name, :color] } })
+          render json: @chore.as_json(
+            include: { family_member: { only: [:id, :name, :color] } },
+            methods: [:overdue_severity]
+          )
         else
           render json: { errors: @chore.errors.full_messages }, status: :unprocessable_entity
         end

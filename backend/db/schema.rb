@@ -10,14 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_12_10_000002) do
+ActiveRecord::Schema[7.1].define(version: 2025_12_15_214131) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "chores", force: :cascade do |t|
     t.string "title", null: false
     t.text "description"
-    t.bigint "family_member_id", null: false
+    t.bigint "family_member_id"
     t.datetime "due_date"
     t.boolean "completed", default: false
     t.datetime "created_at", null: false
@@ -55,5 +55,40 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_10_000002) do
     t.index ["purchased_at"], name: "index_grocery_items_on_purchased_at"
   end
 
+  create_table "recurring_chore_completions", force: :cascade do |t|
+    t.bigint "recurring_chore_id", null: false
+    t.bigint "family_member_id"
+    t.datetime "completed_at", null: false
+    t.datetime "was_due_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["completed_at"], name: "index_recurring_chore_completions_on_completed_at"
+    t.index ["family_member_id"], name: "index_recurring_chore_completions_on_family_member_id"
+    t.index ["recurring_chore_id", "completed_at"], name: "idx_on_recurring_chore_id_completed_at_bf60a78957"
+    t.index ["recurring_chore_id"], name: "index_recurring_chore_completions_on_recurring_chore_id"
+  end
+
+  create_table "recurring_chores", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "description"
+    t.bigint "family_member_id"
+    t.string "recurrence_type", null: false
+    t.integer "recurrence_interval", default: 1
+    t.integer "day_of_month"
+    t.string "days_of_week", default: [], array: true
+    t.datetime "next_due_date"
+    t.datetime "last_completed_at"
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active"], name: "index_recurring_chores_on_active"
+    t.index ["family_member_id"], name: "index_recurring_chores_on_family_member_id"
+    t.index ["next_due_date"], name: "index_recurring_chores_on_next_due_date"
+    t.index ["recurrence_type"], name: "index_recurring_chores_on_recurrence_type"
+  end
+
   add_foreign_key "chores", "family_members"
+  add_foreign_key "recurring_chore_completions", "family_members"
+  add_foreign_key "recurring_chore_completions", "recurring_chores"
+  add_foreign_key "recurring_chores", "family_members"
 end
