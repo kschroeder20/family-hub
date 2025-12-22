@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Tab } from '@headlessui/react';
 import { PlusIcon, TrashIcon, CheckIcon, Bars3Icon, ArrowPathIcon } from '@heroicons/react/24/outline';
@@ -157,12 +157,21 @@ function SortableChoreItem({ chore, onToggle, onDelete, onEdit, getOverdueSeveri
 export default function Chores() {
   const queryClient = useQueryClient();
   const { expandedWidget, expandWidget, collapseWidget } = useWidgetExpand();
-  const [selectedMemberIndex, setSelectedMemberIndex] = useState(0);
+  const [selectedMemberIndex, setSelectedMemberIndex] = useState(() => {
+    // Try to restore from sessionStorage, default to 0
+    const saved = sessionStorage.getItem('chores-selected-tab');
+    return saved !== null ? parseInt(saved) : 0;
+  });
   const [isAddingChore, setIsAddingChore] = useState(false);
   const [editingChore, setEditingChore] = useState(null);
   const [choreOrder, setChoreOrder] = useState({});
 
   const isExpanded = expandedWidget === 'chores';
+
+  // Save selected tab to sessionStorage whenever it changes
+  useEffect(() => {
+    sessionStorage.setItem('chores-selected-tab', selectedMemberIndex.toString());
+  }, [selectedMemberIndex]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -304,9 +313,15 @@ export default function Chores() {
 
     const orderKey = `member_${memberId}`;
     if (choreOrder[orderKey]) {
-      return choreOrder[orderKey]
+      const orderedChores = choreOrder[orderKey]
         .map(combinedId => memberChores.find(c => `${c.type}-${c.id}` === combinedId))
         .filter(Boolean);
+
+      // Add any new chores that aren't in the saved order
+      const orderedIds = new Set(orderedChores.map(c => `${c.type}-${c.id}`));
+      const newChores = memberChores.filter(c => !orderedIds.has(`${c.type}-${c.id}`));
+
+      return [...orderedChores, ...newChores];
     }
     return memberChores;
   };
@@ -389,6 +404,14 @@ export default function Chores() {
       <div className="flex justify-between items-center mb-3 flex-shrink-0">
         <h2 className="text-xl font-semibold text-[#0a2540]">Chores</h2>
         <div className="flex items-center gap-2">
+          {!isExpanded && (
+            <button
+              onClick={() => expandWidget('chores')}
+              className="text-[#727f96] hover:text-[#0a2540] text-sm font-medium transition-colors"
+            >
+              Expand
+            </button>
+          )}
           {isExpanded && (
             <button
               onClick={collapseWidget}
@@ -408,17 +431,6 @@ export default function Chores() {
           </button>
         </div>
       </div>
-
-      {isAddingChore && (
-        <ChoreFormModal onClose={() => setIsAddingChore(false)} />
-      )}
-
-      {editingChore && (
-        <ChoreEditModal
-          chore={editingChore}
-          onClose={() => setEditingChore(null)}
-        />
-      )}
 
       {/* Upcoming Chores Section */}
       {getUpcomingChores().length > 0 && (
@@ -612,6 +624,17 @@ export default function Chores() {
           </Tab.Panel>
         </Tab.Panels>
       </Tab.Group>
+
+      {isExpanded && isAddingChore && (
+        <ChoreFormModal onClose={() => setIsAddingChore(false)} />
+      )}
+
+      {isExpanded && editingChore && (
+        <ChoreEditModal
+          chore={editingChore}
+          onClose={() => setEditingChore(null)}
+        />
+      )}
     </div>
   );
 }

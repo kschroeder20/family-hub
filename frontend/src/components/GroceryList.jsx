@@ -4,6 +4,7 @@ import { PlusIcon, TrashIcon, CheckIcon, Bars3Icon } from '@heroicons/react/24/o
 import { getGroceryItems, createGroceryItem, updateGroceryItem, deleteGroceryItem } from '../services/api';
 import { useWidgetExpand } from '../contexts/WidgetExpandContext';
 import GroceryFormModal from './GroceryFormModal';
+import GroceryEditModal from './GroceryEditModal';
 import clsx from 'clsx';
 import {
   DndContext,
@@ -22,7 +23,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-function SortableGroceryItem({ item, onToggle, onDelete }) {
+function SortableGroceryItem({ item, onToggle, onDelete, onEdit }) {
   const {
     attributes,
     listeners,
@@ -68,7 +69,7 @@ function SortableGroceryItem({ item, onToggle, onDelete }) {
         >
           {item.purchased && <CheckIcon className="h-4 w-4 text-white" />}
         </button>
-        <div className="flex-1">
+        <div className="flex-1 cursor-pointer" onClick={() => onEdit(item)}>
           <p
             className={clsx(
               'font-medium',
@@ -96,6 +97,7 @@ export default function GroceryList() {
   const queryClient = useQueryClient();
   const { expandedWidget, expandWidget, collapseWidget } = useWidgetExpand();
   const [isAddingItem, setIsAddingItem] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
   const [itemOrder, setItemOrder] = useState([]);
 
   const isExpanded = expandedWidget === 'grocery';
@@ -149,12 +151,30 @@ export default function GroceryList() {
     });
   };
 
+  const handleEditItem = (item) => {
+    expandWidget('grocery');
+    setEditingItem(item);
+  };
+
+  const handleUpdateItem = (updatedData) => {
+    updateItemMutation.mutate({
+      id: editingItem.id,
+      item: updatedData,
+    });
+    setEditingItem(null);
+  };
+
   const getOrderedItems = (items) => {
     if (itemOrder.length === 0) return items;
-    return itemOrder
+    const orderedItems = itemOrder
       .map(id => items.find(item => item.id === id))
-      .filter(Boolean)
-      .concat(items.filter(item => !itemOrder.includes(item.id)));
+      .filter(Boolean);
+
+    // Add any new items that aren't in the saved order
+    const orderedIds = new Set(itemOrder);
+    const newItems = items.filter(item => !orderedIds.has(item.id));
+
+    return [...orderedItems, ...newItems];
   };
 
   const unpurchasedItems = getOrderedItems(groceryItems.filter((item) => !item.purchased));
@@ -177,6 +197,14 @@ export default function GroceryList() {
       <div className="flex justify-between items-center mb-3 flex-shrink-0">
         <h2 className="text-xl font-semibold text-[#0a2540]">Grocery List</h2>
         <div className="flex items-center gap-2">
+          {!isExpanded && (
+            <button
+              onClick={() => expandWidget('grocery')}
+              className="text-[#727f96] hover:text-[#0a2540] text-sm font-medium transition-colors"
+            >
+              Expand
+            </button>
+          )}
           {isExpanded && (
             <button
               onClick={collapseWidget}
@@ -196,13 +224,6 @@ export default function GroceryList() {
           </button>
         </div>
       </div>
-
-      {isAddingItem && (
-        <GroceryFormModal
-          onClose={() => setIsAddingItem(false)}
-          onSubmit={handleAddItem}
-        />
-      )}
 
       <div className="flex-1 overflow-y-auto space-y-3 min-h-0">
         {/* Unpurchased Items */}
@@ -229,6 +250,7 @@ export default function GroceryList() {
                       item={item}
                       onToggle={toggleItemPurchased}
                       onDelete={(id) => deleteItemMutation.mutate(id)}
+                      onEdit={handleEditItem}
                     />
                   ))}
                 </div>
@@ -250,12 +272,28 @@ export default function GroceryList() {
                   item={item}
                   onToggle={toggleItemPurchased}
                   onDelete={(id) => deleteItemMutation.mutate(id)}
+                  onEdit={handleEditItem}
                 />
               ))}
             </div>
           </div>
         )}
       </div>
+
+      {isExpanded && isAddingItem && (
+        <GroceryFormModal
+          onClose={() => setIsAddingItem(false)}
+          onSubmit={handleAddItem}
+        />
+      )}
+
+      {isExpanded && editingItem && (
+        <GroceryEditModal
+          item={editingItem}
+          onClose={() => setEditingItem(null)}
+          onSubmit={handleUpdateItem}
+        />
+      )}
     </div>
   );
 }

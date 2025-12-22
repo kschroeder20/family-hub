@@ -5,6 +5,12 @@ export default function ExpandableWidget({ id, children, expandedContent, classN
   const { expandWidget, isExpanded } = useWidgetExpand();
 
   const handleClick = (e) => {
+    // Disable auto-expand for chores and grocery widgets
+    // Only allow expand via the explicit expand button
+    if (id === 'chores' || id === 'grocery') {
+      return;
+    }
+
     // Only expand if clicking directly on the widget container or non-interactive elements
     // Don't expand if clicking on buttons, links, inputs, or other interactive elements
     const target = e.target;
@@ -28,7 +34,7 @@ export default function ExpandableWidget({ id, children, expandedContent, classN
       {/* Normal widget view - clickable to expand */}
       <div
         onClick={handleClick}
-        className={`cursor-pointer ${className}`}
+        className={`${id === 'chores' || id === 'grocery' ? '' : 'cursor-pointer'} ${className}`}
       >
         {children}
       </div>
