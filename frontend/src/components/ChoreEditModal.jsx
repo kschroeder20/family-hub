@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getFamilyMembers, updateChore, updateRecurringChore } from '../services/api';
@@ -107,8 +108,8 @@ export default function ChoreEditModal({ chore, onClose }) {
     }
   };
 
-  return (
-    <div className="fixed inset-0 bg-white flex flex-col z-50 pointer-events-auto">
+  return createPortal(
+    <div className="fixed inset-0 bg-white flex flex-col z-[60] pointer-events-auto">
       <div className="flex justify-between items-center p-4 md:p-6 border-b border-gray-200 flex-shrink-0">
         <h2 className="text-xl md:text-2xl font-semibold text-[#0a2540]">
           Edit {isRecurring ? 'Recurring' : ''} Chore
@@ -308,6 +309,7 @@ export default function ChoreEditModal({ chore, onClose }) {
           Update Chore
         </button>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
