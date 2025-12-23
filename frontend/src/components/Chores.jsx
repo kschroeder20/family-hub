@@ -439,7 +439,7 @@ export default function Chores() {
             <span className="inline-block w-2.5 h-2.5 bg-[#635bff] rounded-full"></span>
             Upcoming Chores (Next 7 Days)
           </h3>
-          <div className="space-y-2 max-h-40 overflow-y-auto">
+          <div className={clsx("space-y-2 overflow-y-auto", isExpanded ? "max-h-96" : "max-h-40")}>
             {getUpcomingChores().map((chore) => (
               <div
                 key={`${chore.type}-${chore.id}`}

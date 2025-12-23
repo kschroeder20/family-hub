@@ -109,9 +109,9 @@ export default function ChoreFormModal({ onClose }) {
   };
 
   return (
-    <div className="absolute inset-0 bg-white flex flex-col z-10 pointer-events-auto">
-      <div className="flex justify-between items-center p-6 border-b border-gray-200 flex-shrink-0">
-        <h2 className="text-2xl font-semibold text-[#0a2540]">Add Chore</h2>
+    <div className="fixed inset-0 bg-white flex flex-col z-50 pointer-events-auto overflow-auto">
+      <div className="flex justify-between items-center p-4 md:p-6 border-b border-gray-200 flex-shrink-0">
+        <h2 className="text-xl md:text-2xl font-semibold text-[#0a2540]">Add Chore</h2>
         <button
           onClick={onClose}
           className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -120,7 +120,7 @@ export default function ChoreFormModal({ onClose }) {
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6">
+      <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 md:p-6">
           {/* Chore Type Toggle */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -322,7 +322,7 @@ export default function ChoreFormModal({ onClose }) {
       </form>
 
       {/* Action Buttons - Fixed at bottom */}
-      <div className="flex gap-3 p-6 border-t border-gray-200 flex-shrink-0">
+      <div className="flex gap-3 p-4 md:p-6 border-t border-gray-200 flex-shrink-0">
         <button
           type="button"
           onClick={onClose}
