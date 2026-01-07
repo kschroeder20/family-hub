@@ -18,7 +18,8 @@ module Api
           return
         end
 
-        events = @service.list_events
+        # Fetch events from 1 month ago to 2 months in the future
+        events = @service.list_events(1.month.ago, 2.months.from_now)
 
         render json: {
           success: true,
