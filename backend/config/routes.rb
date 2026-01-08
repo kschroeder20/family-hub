@@ -5,6 +5,9 @@ Rails.application.routes.draw do
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
 
+  # Simple health check for Fly.io
+  get "health" => proc { [200, {}, ['OK']] }
+
   namespace :api do
     namespace :v1 do
       resources :family_members, only: [:index]
