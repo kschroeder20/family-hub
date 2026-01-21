@@ -7,7 +7,7 @@ export const BIRTHDAYS = [
     month: 1,
     day: 21,
     name: 'Clarissa',
-    emojis: ['🎈', '💖', '🎀', '🌸'], // Custom emojis for this birthday
+    emojis: ['🎈', '🎈', '🎈', '🎈', '🎂' ], // Custom emojis for this birthday
   },
   // Add more birthdays below:
   // {
