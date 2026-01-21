@@ -32,6 +32,95 @@ code {
   animation: gradient-shift 15s ease infinite;
 }
 
+/* Birthday celebration animations */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0.7;
+  }
+}
+
+@keyframes balloon-float {
+  0% {
+    transform: translateY(100vh) rotate(-5deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-120vh) rotate(5deg);
+    opacity: 0;
+  }
+}
+
+@keyframes balloon-sway {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(20px);
+  }
+}
+
+@keyframes title-sparkle {
+  0%, 100% {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 215, 0, 0.6), 0 0 30px rgba(255, 105, 180, 0.4);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 1), 0 0 40px rgba(255, 215, 0, 0.8), 0 0 60px rgba(255, 105, 180, 0.6);
+  }
+}
+
+.confetti-piece {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  top: -20px;
+  animation: confetti-fall linear infinite;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.balloon {
+  position: fixed;
+  bottom: -150px;
+  animation: balloon-float linear infinite;
+  z-index: 999;
+  pointer-events: none;
+  font-size: 4rem;
+}
+
+.balloon-sway {
+  animation: balloon-sway 3s ease-in-out infinite;
+}
+
+.birthday-title {
+  animation: title-sparkle 2s ease-in-out infinite;
+  background: linear-gradient(90deg, #ff6b9d, #ffd93d, #6bcf7f, #4dc9ff, #9d7cff, #ff6b9d);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: title-sparkle 2s ease-in-out infinite, gradient-text 4s linear infinite;
+}
+
+@keyframes gradient-text {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 300% 50%;
+  }
+}
+
 /* Custom scrollbar styles */
 ::-webkit-scrollbar {
   width: 10px;
