@@ -113,22 +113,9 @@ code {
 }
 
 .birthday-title {
+  color: white;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   animation: title-sparkle 2s ease-in-out infinite;
-  background: linear-gradient(90deg, #ff6b9d, #ffd93d, #6bcf7f, #4dc9ff, #9d7cff, #ff6b9d);
-  background-size: 300% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: title-sparkle 2s ease-in-out infinite, gradient-text 4s linear infinite;
-}
-
-@keyframes gradient-text {
-  0% {
-    background-position: 0% 50%;
-  }
-  100% {
-    background-position: 300% 50%;
-  }
 }
 
 /* Custom scrollbar styles */

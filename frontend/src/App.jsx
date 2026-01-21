@@ -8,26 +8,23 @@ import Weather from './components/Weather';
 import WeatherExpanded from './components/WeatherExpanded';
 import { WidgetExpandProvider } from './contexts/WidgetExpandContext';
 import ExpandableWidget from './components/ExpandableWidget';
+import { BIRTHDAYS, DEFAULT_EMOJIS, CONFETTI_COLORS } from './config/birthdays';
 
 const queryClient = new QueryClient();
 
-// Birthday configuration
-const BIRTHDAYS = [
-  { month: 1, day: 21, name: 'Clarissa' },
-];
-
-function isBirthdayToday() {
+function getBirthdayToday() {
   const today = new Date();
   const month = today.getMonth() + 1;
   const day = today.getDate();
-  return BIRTHDAYS.find(b => b.month === month && b.day === day);
+  const birthday = BIRTHDAYS.find(b => b.month === month && b.day === day);
+  if (birthday) {
+    return {
+      ...birthday,
+      emojis: birthday.emojis || DEFAULT_EMOJIS,
+    };
+  }
+  return null;
 }
-
-// Confetti colors
-const CONFETTI_COLORS = ['#ff6b9d', '#ffd93d', '#6bcf7f', '#4dc9ff', '#9d7cff', '#ff9f43', '#ee5a24'];
-
-// Balloon emojis
-const BALLOONS = ['🎈', '🎀', '🎁', '🎂', '🎉', '🎊', '💖'];
 
 function Confetti() {
   const pieces = useMemo(() => {
@@ -63,16 +60,16 @@ function Confetti() {
   );
 }
 
-function Balloons() {
+function Balloons({ emojis }) {
   const balloons = useMemo(() => {
     return Array.from({ length: 15 }, (_, i) => ({
       id: i,
       left: 5 + Math.random() * 90,
       delay: Math.random() * 8,
       duration: 10 + Math.random() * 8,
-      emoji: BALLOONS[Math.floor(Math.random() * BALLOONS.length)],
+      emoji: emojis[Math.floor(Math.random() * emojis.length)],
     }));
-  }, []);
+  }, [emojis]);
 
   return (
     <>
@@ -95,7 +92,7 @@ function Balloons() {
 
 function App() {
   const background = getCurrentMonthBackground();
-  const birthday = isBirthdayToday();
+  const birthday = getBirthdayToday();
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -109,7 +106,7 @@ function App() {
           {birthday && (
             <>
               <Confetti />
-              <Balloons />
+              <Balloons emojis={birthday.emojis} />
             </>
           )}
 
