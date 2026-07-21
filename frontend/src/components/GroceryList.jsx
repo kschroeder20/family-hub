@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { PlusIcon, TrashIcon, CheckIcon, Bars3Icon } from '@heroicons/react/24/outline';
-import { getGroceryItems, createGroceryItem, updateGroceryItem, deleteGroceryItem } from '../services/api';
+import { getGroceryItems, createGroceryItem, updateGroceryItem, deleteGroceryItem, clearPurchasedGroceryItems } from '../services/api';
 import { useWidgetExpand } from '../contexts/WidgetExpandContext';
 import GroceryFormModal from './GroceryFormModal';
 import GroceryEditModal from './GroceryEditModal';
@@ -140,6 +140,19 @@ export default function GroceryList() {
     },
   });
 
+  const clearPurchasedMutation = useMutation({
+    mutationFn: clearPurchasedGroceryItems,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['groceryItems']);
+    },
+  });
+
+  const handleClearPurchased = () => {
+    if (window.confirm('Remove all purchased items from the list?')) {
+      clearPurchasedMutation.mutate();
+    }
+  };
+
   const handleAddItem = (item) => {
     createItemMutation.mutate(item);
   };
@@ -262,9 +275,18 @@ export default function GroceryList() {
         {/* Purchased Items */}
         {purchasedItems.length > 0 && (
           <div>
-            <h3 className="text-sm font-semibold text-[#727f96] mb-3 uppercase tracking-wider">
-              Purchased
-            </h3>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-[#727f96] uppercase tracking-wider">
+                Purchased
+              </h3>
+              <button
+                onClick={handleClearPurchased}
+                disabled={clearPurchasedMutation.isPending}
+                className="text-xs font-medium text-[#727f96] hover:text-red-500 transition-colors disabled:opacity-50"
+              >
+                Clear Purchased
+              </button>
+            </div>
             <div className="space-y-2">
               {purchasedItems.map((item) => (
                 <SortableGroceryItem

@@ -348,7 +348,7 @@ export default function CalendarComponent() {
         </div>
       </div>
 
-      <div className="flex-1 calendar-wrapper overflow-auto min-h-0">
+      <div className="flex-1 calendar-wrapper overflow-y-auto overscroll-contain touch-pan-y min-h-0">
         <FullCalendar
           ref={calendarRef}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
@@ -421,7 +421,7 @@ export default function CalendarComponent() {
           <span className="inline-block w-2 h-2 bg-[#635bff] rounded-full"></span>
           Today's Events
         </h2>
-        <div className="space-y-1.5 max-h-32 overflow-y-auto">
+        <div className="space-y-1.5 max-h-32 overflow-y-auto overscroll-contain touch-pan-y">
           {todaysEvents.length === 0 ? (
             <p className="text-sm text-[#727f96] italic">No events scheduled for today</p>
           ) : (
@@ -460,6 +460,20 @@ export default function CalendarComponent() {
       <style jsx global>{`
         .calendar-wrapper .fc {
           font-family: 'Inter', sans-serif;
+        }
+
+        .calendar-wrapper {
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: thin;
+        }
+
+        .calendar-wrapper::-webkit-scrollbar {
+          width: 10px;
+        }
+
+        .calendar-wrapper::-webkit-scrollbar-thumb {
+          background-color: #d1d9e0;
+          border-radius: 9999px;
         }
 
         .calendar-wrapper .fc-theme-standard .fc-scrollgrid {

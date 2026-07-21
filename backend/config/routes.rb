@@ -17,7 +17,11 @@ Rails.application.routes.draw do
           post :complete
         end
       end
-      resources :grocery_items
+      resources :grocery_items do
+        collection do
+          delete :clear_purchased
+        end
+      end
       resources :calendar_events, only: [:index, :create, :update, :destroy]
 
       get 'google_calendar/sync', to: 'google_calendar#sync'

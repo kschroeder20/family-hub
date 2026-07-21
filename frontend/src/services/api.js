@@ -35,6 +35,7 @@ export const getGroceryItems = () => api.get('/grocery_items');
 export const createGroceryItem = (item) => api.post('/grocery_items', { grocery_item: item });
 export const updateGroceryItem = (id, item) => api.put(`/grocery_items/${id}`, { grocery_item: item });
 export const deleteGroceryItem = (id) => api.delete(`/grocery_items/${id}`);
+export const clearPurchasedGroceryItems = () => api.delete('/grocery_items/clear_purchased');
 
 // Google Calendar
 export const syncGoogleCalendar = () => api.get('/google_calendar/sync');

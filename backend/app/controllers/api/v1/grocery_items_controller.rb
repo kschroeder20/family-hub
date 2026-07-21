@@ -36,6 +36,11 @@ module Api
         head :no_content
       end
 
+      def clear_purchased
+        GroceryItem.purchased.destroy_all
+        head :no_content
+      end
+
       private
 
       def set_grocery_item
