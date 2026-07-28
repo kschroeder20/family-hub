@@ -33,7 +33,9 @@ Rails.application.configure do
   config.active_storage.service = :local
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  config.force_ssl = true
+  # Disabled for the self-hosted deployment: Tailscale terminates HTTPS and forwards
+  # plaintext over loopback (Caddy -> Puma), so enforcing SSL here would redirect-loop.
+  config.force_ssl = ENV.fetch("FORCE_SSL", "true") == "true"
 
   # Security headers
   config.action_dispatch.default_headers = {

@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:17-alpine
+    env_file:
+      - backend/.env.docker.prod
+    environment:
+      POSTGRES_USER: family_hub
+      POSTGRES_DB: family_hub_production
+    volumes:
+      - familyhub_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U family_hub"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    # No ports published to the host: only the backend container can reach this,
+    # over the internal compose network. Not reachable from the Mac or the LAN at all.
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - backend/.env.docker.prod
+    environment:
+      RAILS_ENV: production
+      RAILS_LOG_TO_STDOUT: "true"
+      FORCE_SSL: "false"
+      BIND_ADDRESS: "0.0.0.0"
+    ports:
+      - "127.0.0.1:3001:3000"
+    restart: unless-stopped
+
+volumes:
+  familyhub_pgdata:
