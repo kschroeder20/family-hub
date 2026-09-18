@@ -1,6 +1,3 @@
-// Ported from backend/app/models/recurring_chore.rb — keep in sync by hand,
-// there is no shared source of truth between the Ruby and TS versions.
-
 export type RecurrenceType = 'weekly' | 'monthly' | 'quarterly' | 'custom_days';
 
 export const VALID_DAYS_OF_WEEK = [
@@ -71,8 +68,10 @@ function addMonths(date: Date, months: number): Date {
 }
 
 function endOfMonthUTC(date: Date): Date {
-  // Mirrors ActiveSupport's `end_of_month`, which resets time-of-day to
-  // 23:59:59.999 rather than preserving the original hour/minute.
+  // Deliberately resets time-of-day to 23:59:59.999 rather than preserving
+  // the original hour/minute — this is the fallback for an out-of-range
+  // day_of_month (see changeDayUTC below), so "end of month" should mean
+  // the literal end of the day, not some arbitrary earlier time.
   const year = date.getUTCFullYear();
   const month = date.getUTCMonth();
   const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
@@ -82,8 +81,8 @@ function endOfMonthUTC(date: Date): Date {
 function changeDayUTC(date: Date, day: number): Date {
   const daysInMonth = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0)).getUTCDate();
   if (day > daysInMonth) {
-    // Mirrors Rails' `Time#change` raising ArgumentError on e.g. Feb 31,
-    // caught in the Ruby code and handled by falling back to end-of-month.
+    // e.g. day_of_month 31 on a recurring chore, landing on a 30-day or
+    // 28/29-day month — fall back to the last real day of that month.
     return endOfMonthUTC(date);
   }
   const d = new Date(date.getTime());

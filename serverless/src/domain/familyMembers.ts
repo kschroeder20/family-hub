@@ -1,6 +1,5 @@
-// Read-only in the Rails app (routes.rb only exposes `index`), seeded once in
-// backend/db/migrate/20231203000001_create_family_members.rb and never
-// changed since. Treated as static config rather than a DynamoDB table.
+// Read-only and essentially never changes, so this is static config rather
+// than a DynamoDB table -- there's no create/update/delete endpoint for it.
 
 export interface FamilyMember {
   id: string;

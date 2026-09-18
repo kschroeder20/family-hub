@@ -1,5 +1,3 @@
-// Ported from backend/app/models/grocery_item.rb
-
 export interface GroceryItemInput {
   name: string;
   quantity?: number;

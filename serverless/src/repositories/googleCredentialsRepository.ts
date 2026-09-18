@@ -1,8 +1,8 @@
 import { DeleteCommand, GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { ddb, TableNames } from '../lib/dynamo';
 
-// Mirrors GoogleCredential (Rails model) — single row keyed 'default', no
-// per-family-member Google account distinction, matching the current app.
+// Single row keyed 'default' — there's no per-family-member Google account,
+// just one shared calendar connection for the whole household.
 export async function storeGoogleCredentials(userId: string, credentialsJson: string): Promise<void> {
   const now = new Date().toISOString();
   await ddb.send(

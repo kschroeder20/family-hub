@@ -109,7 +109,8 @@ export async function updateRecurringChore(
 }
 
 export async function deactivateRecurringChore(id: string): Promise<void> {
-  // Rails does a soft delete (`update(active: false)`), not a real destroy.
+  // Soft delete — DELETE on this resource deactivates it rather than
+  // removing the row, so completion history stays intact.
   await updateRecurringChore(id, { active: false });
 }
 

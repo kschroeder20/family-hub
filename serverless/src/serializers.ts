@@ -12,8 +12,6 @@ function familyMemberOf(id: string | null) {
   return m ? { id: m.id, name: m.name, color: m.color } : null;
 }
 
-// Field order matches Rails' `as_json` column order (schema.rb) so a diff
-// against the old API response is easy to eyeball if anything looks wrong.
 export function serializeChore(chore: ChoreRecord, now: Date = new Date()) {
   return {
     id: chore.id,

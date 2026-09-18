@@ -11,15 +11,13 @@ import {
 } from '../repositories/choresRepository';
 
 function extractChoreInput(body: Record<string, unknown>): ChoreWriteInput {
-  // Mirrors Rails' `params.require(:chore).permit(...)` — the payload is
-  // nested under a `chore` key.
+  // The payload is nested under a `chore` key, e.g. { chore: { title: ... } }.
   const c = (body.chore as Record<string, unknown>) ?? {};
   return {
     title: c.title as string,
     description: c.description as string | undefined,
     // Left `undefined` (not coerced to null) when absent so a PATCH that
-    // omits a key leaves the existing value alone, matching Rails' strong
-    // params (a key missing from `permit` never touches the attribute).
+    // omits a key leaves the existing value alone instead of clearing it.
     familyMemberId: c.family_member_id as string | null | undefined,
     dueDate: c.due_date as string | null | undefined,
     completed: c.completed as boolean | undefined,
@@ -58,7 +56,7 @@ export async function update(event: APIGatewayProxyEventV2, params: Record<strin
 
 export async function destroy(_event: APIGatewayProxyEventV2, params: Record<string, string>) {
   return handleErrors(async () => {
-    await getChore(params.id); // 404s if missing, matching Rails' `find`
+    await getChore(params.id); // 404s if missing, before attempting the delete
     await deleteChore(params.id);
     return noContent();
   });

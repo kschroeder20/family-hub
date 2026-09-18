@@ -35,7 +35,7 @@ describe('chores API (via main router handler)', () => {
     expect(list[0].id).toBe(chore.id);
   });
 
-  it('rejects a blank title with 422 + Rails-shaped errors', async () => {
+  it('rejects a blank title with 422 and a validation error message', async () => {
     const res = await handler(buildEvent('POST', '/api/v1/chores', { body: { chore: { title: '  ' } } }));
     expect(res.statusCode).toBe(422);
     const body = parse<{ errors: string[] }>(res);

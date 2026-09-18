@@ -48,7 +48,7 @@ describe('calculateNextDueDate', () => {
     expect(calculateNextDueDate(input, from).toISOString()).toBe('2026-02-25T08:00:00.000Z');
   });
 
-  it('monthly with day_of_month beyond the target month length falls back to end of month, resetting time-of-day (matches ActiveSupport end_of_month)', () => {
+  it('monthly with day_of_month beyond the target month length falls back to end of month, resetting time-of-day', () => {
     // Jan 15 + 1 month = Feb; day_of_month 31 doesn't exist in Feb 2026 (not a leap year) -> Feb 28 23:59:59.999.
     const from = new Date('2026-01-15T08:00:00Z');
     const input: RecurringChoreInput = { recurrenceType: 'monthly', recurrenceInterval: 1, dayOfMonth: 31 };

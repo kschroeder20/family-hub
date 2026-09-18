@@ -6,9 +6,8 @@ import {
   storeGoogleCredentials,
 } from '../repositories/googleCredentialsRepository';
 
-// Ported from backend/app/services/google_calendar_service.rb +
-// backend/lib/database_token_store.rb. Single stored token, keyed 'default'
-// — matches the current app, which has no per-family-member Google account.
+// Single stored token, keyed 'default' — there's no per-family-member
+// Google account, just one shared calendar connection for the household.
 const TOKEN_USER_ID = 'default';
 const SCOPES = ['https://www.googleapis.com/auth/calendar'];
 const TIME_ZONE = 'America/Los_Angeles';
@@ -50,9 +49,8 @@ export async function clearCredentials(): Promise<void> {
   await deleteGoogleCredentials(TOKEN_USER_ID);
 }
 
-// Mirrors the Ruby controllers' shared rescue: invalid/expired/revoked
-// tokens clear the stored credential and surface a fresh auth URL instead of
-// a generic error.
+// Invalid/expired/revoked tokens clear the stored credential and surface a
+// fresh auth URL instead of a generic error.
 export function isAuthExpiryError(e: unknown): boolean {
   const msg = ((e as Error)?.message || '').toLowerCase();
   return ['invalid_grant', 'expired', 'revoked', 'authorization failed'].some((needle) =>

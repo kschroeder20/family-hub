@@ -1,5 +1,3 @@
-// Ported from backend/app/models/chore.rb
-
 export type ChoreOverdueSeverity = 'amber' | 'red' | null;
 
 export function isOverdue(dueDate: Date | null | undefined, completed: boolean, now: Date): boolean {

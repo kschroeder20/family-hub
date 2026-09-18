@@ -11,10 +11,7 @@ from constructs import Construct
 
 # Every /api/v1/google_calendar/* route needs the Cognito authorizer *except*
 # the OAuth callback -- Google's redirect hits it directly with no bearer
-# token to attach. See serverless/src/handlers/googleCalendar.ts and the
-# note on GoogleCalendarController's missing `include CognitoAuthenticatable`
-# in the Rails app (this closes that gap; the old app leaves those routes
-# open behind Tailscale instead).
+# token to attach. See serverless/src/handlers/googleCalendar.ts.
 PROTECTED_ROUTES = [
     ("GET", "/api/v1/family_members"),
     ("GET", "/api/v1/chores"),
@@ -61,9 +58,9 @@ _METHOD_MAP = {
 
 
 class ApiStack(Stack):
-    """Lambda + API Gateway HTTP API fronting the serverless port of the
-    Rails API (see ../../serverless). One Lambda handles every route --
-    see serverless/src/main.ts for the in-process router -- fronted by a
+    """Lambda + API Gateway HTTP API fronting the app's serverless backend
+    (see ../../serverless). One Lambda handles every route -- see
+    serverless/src/main.ts for the in-process router -- fronted by a
     Cognito JWT authorizer reusing the FamilyHubAuth user pool.
 
     Google Calendar credentials (GOOGLE_CLIENT_ID/SECRET/REDIRECT_URI/

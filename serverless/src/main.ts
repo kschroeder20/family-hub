@@ -7,11 +7,9 @@ import * as recurringChores from './handlers/recurringChores';
 import * as groceryItems from './handlers/groceryItems';
 import * as googleCalendar from './handlers/googleCalendar';
 
-// NOTE: routes.rb also declares `resources :calendar_events` (index/create/
-// update/destroy), but no CalendarEventsController exists in the Rails app
-// and the frontend never calls it (frontend/src/services/api.js only talks
-// to /google_calendar/*) — that route 500s today and is intentionally not
-// ported here.
+// NOTE: there is no /api/v1/calendar_events route here on purpose — the
+// frontend only ever talks to /google_calendar/* (see
+// frontend/src/services/api.js) for calendar data.
 export const router = new Router();
 
 router.add('GET', '/api/v1/family_members', familyMembers.index);
