@@ -1,5 +1,0 @@
-#!/bin/bash
-# This script runs the cleanup task for Railway cron jobs
-
-cd "${0%/*}/.."
-bundle exec rails cleanup:completed_items

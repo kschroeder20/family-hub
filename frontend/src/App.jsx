@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useMemo } from 'react';
+import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
 import { getCurrentMonthBackground } from './utils/backgrounds';
 import CalendarComponent from './components/Calendar';
 import Chores from './components/Chores';
@@ -9,6 +10,8 @@ import WeatherExpanded from './components/WeatherExpanded';
 import { WidgetExpandProvider } from './contexts/WidgetExpandContext';
 import ExpandableWidget from './components/ExpandableWidget';
 import { BIRTHDAYS, DEFAULT_EMOJIS, CONFETTI_COLORS } from './config/birthdays';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import Login from './components/Login';
 
 const queryClient = new QueryClient();
 
@@ -90,7 +93,8 @@ function Balloons({ emojis }) {
   );
 }
 
-function App() {
+function AppContent() {
+  const { logout } = useAuth();
   const background = getCurrentMonthBackground();
   const birthday = getBirthdayToday();
 
@@ -111,7 +115,7 @@ function App() {
           )}
 
           <div className="max-w-[1800px] mx-auto relative w-full flex flex-col h-full">
-            <header className="mb-2 sm:mb-4 lg:mb-6 flex-shrink-0">
+            <header className="mb-2 sm:mb-4 lg:mb-6 flex-shrink-0 relative">
               {birthday ? (
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-center tracking-tight birthday-title">
                   Happy Birthday {birthday.name}!
@@ -121,6 +125,13 @@ function App() {
                   Schroeder Family Hub
                 </h1>
               )}
+              <button
+                onClick={logout}
+                title="Sign out"
+                className="absolute right-0 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-white/20 hover:bg-white/30 text-white transition-colors"
+              >
+                <ArrowRightOnRectangleIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+              </button>
             </header>
 
             <div className="flex-1 flex flex-col lg:flex-row gap-3 sm:gap-4 overflow-auto lg:overflow-hidden">
@@ -146,6 +157,22 @@ function App() {
         </div>
       </WidgetExpandProvider>
     </QueryClientProvider>
+  );
+}
+
+function AuthGate() {
+  const { isAuthenticated, isChecking } = useAuth();
+
+  if (isChecking) return null;
+
+  return isAuthenticated ? <AppContent /> : <Login />;
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AuthGate />
+    </AuthProvider>
   );
 }
 

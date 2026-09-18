@@ -1,15 +1,38 @@
 import axios from 'axios';
+import { getIdToken } from '../contexts/AuthContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-const API_KEY = import.meta.env.VITE_API_KEY;
 
 const api = axios.create({
   baseURL: `${API_URL}/api/v1`,
   headers: {
     'Content-Type': 'application/json',
-    ...(API_KEY && { 'X-API-Key': API_KEY }),
   },
 });
+
+api.interceptors.request.use(async (config) => {
+  const token = await getIdToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // google_calendar/sync legitimately returns 401 to mean "Google
+    // Calendar isn't connected yet" (see needs_auth in its response body),
+    // not "your session expired" -- treating it as the latter would reload
+    // the page every time it's called, which reloads again, forever.
+    const isGoogleCalendar = error.config?.url?.includes('google_calendar');
+    if (error.response?.status === 401 && !isGoogleCalendar) {
+      // Session expired or invalid -- reload to show the login screen.
+      window.location.reload();
+    }
+    return Promise.reject(error);
+  }
+);
 
 // Family Members
 export const getFamilyMembers = () => api.get('/family_members');
